@@ -8,7 +8,6 @@ import { Upload, X, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import ProductTemplate3D from "@/components/product-template-3d"
 import QuotationGenerator from "@/components/quotation-generator"
@@ -140,7 +139,8 @@ export default function CustomizePage() {
         const result = reader.result as string
 
         // Pre-load the image to check if it loads correctly
-        const img = new Image()
+        // const img1 = new Image()
+        const img = new window.Image()
         img.onload = () => {
           setLogo(result)
           // Save to localStorage
@@ -242,11 +242,13 @@ export default function CustomizePage() {
                         className="sr-only"
                         onChange={handleLogoUpload}
                       />
-                      <Label htmlFor="logo-upload" className="w-full">
-                        <Button className="w-full" disabled={isUploading}>
+                      <Button
+                        className="w-full"
+                        disabled={isUploading}
+                        onClick={() => document.getElementById("logo-upload")?.click()}
+                      >
                           {isUploading ? "Uploading..." : "Upload Logo"}
                         </Button>
-                      </Label>
                     </div>
                   </div>
                 ) : (
@@ -277,11 +279,14 @@ export default function CustomizePage() {
                         className="sr-only"
                         onChange={handleLogoUpload}
                       />
-                      <Label htmlFor="logo-upload-new" className="w-full">
-                        <Button variant="outline" className="w-full" disabled={isUploading}>
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        disabled={isUploading}
+                        onClick={() => document.getElementById("logo-upload-new")?.click()}
+                      >
                           {isUploading ? "Uploading..." : "Upload New Logo"}
                         </Button>
-                      </Label>
                     </div>
                   </div>
                 )}

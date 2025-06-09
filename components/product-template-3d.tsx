@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Plus, Minus } from "lucide-react"
+import { Loader2, Plus, Minus, RotateCw } from "lucide-react"
 
 interface ProductTemplate3DProps {
   template: {
@@ -26,7 +26,7 @@ interface ProductTemplate3DProps {
 }
 
 // Fancy Business Card with proper texture and colors
-function BusinessCard({ texture, logo, logoPosition, logoSize, isHighlighted, color = "#ffffff" }: any) {
+function BusinessCard({ texture, logo, logoPosition, logoSize, logoRotation, isHighlighted, color = "#ffffff" }: any) {
   const meshRef = useRef<THREE.Mesh>(null)
 
   // Create logo texture if logo exists
@@ -109,11 +109,21 @@ function BusinessCard({ texture, logo, logoPosition, logoSize, isHighlighted, co
         <meshBasicMaterial map={cardTexture} />
       </mesh>
 
-      {/* Logo */}
+      {/* Logo - positioned on TOP with higher Z value and proper layering */}
       {logo && logoTexture && (
-        <mesh position={[(logoPosition.x / 50 - 1) * 1.5, 0.055, (logoPosition.y / 50 - 1) * 0.8]}>
+        <mesh
+          position={[(logoPosition.x / 50 - 1) * 1.5, 0.08, (logoPosition.y / 50 - 1) * 0.8]}
+          rotation={[0, 0, (logoRotation * Math.PI) / 180]}
+          renderOrder={1}
+        >
           <planeGeometry args={[logoSize / 23, logoSize / 23]} />
-          <meshBasicMaterial map={logoTexture} transparent={true} alphaTest={0.1} />
+          <meshBasicMaterial
+            map={logoTexture}
+            transparent={true}
+            alphaTest={0.1}
+            depthTest={false}
+            depthWrite={false}
+          />
         </mesh>
       )}
 
@@ -127,7 +137,7 @@ function BusinessCard({ texture, logo, logoPosition, logoSize, isHighlighted, co
 }
 
 // Colorful T-Shirt with texture
-function TShirt({ texture, logo, logoPosition, logoSize, isHighlighted, color = "#dc2626" }: any) {
+function TShirt({ texture, logo, logoPosition, logoSize, logoRotation, isHighlighted, color = "#dc2626" }: any) {
   const groupRef = useRef<THREE.Group>(null)
 
   // Create logo texture if logo exists
@@ -230,15 +240,22 @@ function TShirt({ texture, logo, logoPosition, logoSize, isHighlighted, color = 
         <meshBasicMaterial color={color} side={THREE.DoubleSide} />
       </mesh>
 
-      {/* Logo */}
+      {/* Logo - positioned on TOP with higher Z value and proper layering */}
       {logo && logoTexture && (
         <mesh
-          position={[(logoPosition.x / 50 - 1) * 0.45, 0.2 + (logoPosition.y / 50 - 1) * 0.6, 0.06]}
-          rotation={[0, 0, 0]}
+          position={[(logoPosition.x / 50 - 1) * 0.45, 0.2 + (logoPosition.y / 50 - 1) * 0.6, 0.12]}
+          rotation={[0, 0, (logoRotation * Math.PI) / 180]}
           scale={[logoSize / 35, logoSize / 35, 1]}
+          renderOrder={1}
         >
           <planeGeometry args={[1, 1]} />
-          <meshBasicMaterial map={logoTexture} transparent={true} alphaTest={0.1} />
+          <meshBasicMaterial
+            map={logoTexture}
+            transparent={true}
+            alphaTest={0.1}
+            depthTest={false}
+            depthWrite={false}
+          />
         </mesh>
       )}
 
@@ -265,6 +282,7 @@ function LoadingFallback() {
 export default function ProductTemplate3D({ template, logo, onProductSelect, isSelected }: ProductTemplate3DProps) {
   const [logoPosition, setLogoPosition] = useState({ x: 50, y: 50 })
   const [logoSize, setLogoSize] = useState(30)
+  const [logoRotation, setLogoRotation] = useState(0)
   const [quantity, setQuantity] = useState(1)
 
   const handleHorizontalPosition = (value: number[]) => {
@@ -285,6 +303,16 @@ export default function ProductTemplate3D({ template, logo, onProductSelect, isS
     }
   }
 
+  const handleLogoRotation = (value: number[]) => {
+    if (value && value.length > 0) {
+      setLogoRotation(value[0])
+    }
+  }
+
+  const resetLogoRotation = () => {
+    setLogoRotation(0)
+  }
+
   const handleProductSelect = () => {
     if (onProductSelect) {
       onProductSelect({
@@ -292,6 +320,7 @@ export default function ProductTemplate3D({ template, logo, onProductSelect, isS
         quantity,
         logoPosition,
         logoSize,
+        logoRotation,
         hasLogo: !!logo,
         totalPrice: (template.basePrice + (logo ? 50 : 0)) * quantity,
       })
@@ -304,6 +333,7 @@ export default function ProductTemplate3D({ template, logo, onProductSelect, isS
       logo,
       logoPosition,
       logoSize,
+      logoRotation,
       isHighlighted: isSelected,
       color: template.color,
     }
@@ -332,6 +362,12 @@ export default function ProductTemplate3D({ template, logo, onProductSelect, isS
           {isSelected && (
             <div className="absolute top-2 right-2 z-10">
               <Badge className="bg-blue-500">Selected</Badge>
+            </div>
+          )}
+
+          {logo && (
+            <div className="absolute top-2 left-2 z-10">
+              <Badge className="bg-green-600">Logo Applied</Badge>
             </div>
           )}
 
@@ -382,6 +418,11 @@ export default function ProductTemplate3D({ template, logo, onProductSelect, isS
 
           {logo && (
             <div className="mt-4 space-y-4">
+              <div className="bg-green-50 border border-green-200 rounded-md p-3 mb-4">
+                <p className="text-green-800 text-sm font-medium">✓ Logo Applied Successfully</p>
+                <p className="text-green-600 text-xs">Adjust position, size, and rotation below</p>
+              </div>
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500">Horizontal Position</span>
@@ -404,6 +445,19 @@ export default function ProductTemplate3D({ template, logo, onProductSelect, isS
                   <span className="text-xs text-gray-500">{logoSize}%</span>
                 </div>
                 <Slider value={[logoSize]} min={10} max={60} step={1} onValueChange={handleLogoSize} />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">Logo Rotation</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-gray-500">{logoRotation}°</span>
+                    <Button size="sm" variant="ghost" onClick={resetLogoRotation}>
+                      <RotateCw className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+                <Slider value={[logoRotation]} min={-180} max={180} step={5} onValueChange={handleLogoRotation} />
               </div>
             </div>
           )}
