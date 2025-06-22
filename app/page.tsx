@@ -1,3 +1,6 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Search, ShoppingBag } from "lucide-react"
@@ -10,8 +13,53 @@ import CategoryShowcase from "@/components/category-showcase"
 import FeaturesSection from "@/components/features-section"
 import TestimonialsSection from "@/components/testimonials-section"
 import StatsSection from "@/components/stats-section"
+import UserDataPopup from "@/components/user-data-popup"
+import GoToTop from "@/components/go-to-top"
 
 export default function Home() {
+  const [showUserPopup, setShowUserPopup] = useState(false)
+  const [userInteracted, setUserInteracted] = useState(false)
+
+  // Show popup after 7 seconds of user interaction
+  useEffect(() => {
+    if (!userInteracted) return
+
+    const timer = setTimeout(() => {
+      // Check if user data already exists
+      const existingUserData = localStorage.getItem("userData")
+      if (!existingUserData) {
+        setShowUserPopup(true)
+      }
+    }, 7000)
+
+    return () => clearTimeout(timer)
+  }, [userInteracted])
+
+  // Track user interaction
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      if (!userInteracted) {
+        setUserInteracted(true)
+      }
+    }
+
+    document.addEventListener("click", handleUserInteraction)
+    document.addEventListener("scroll", handleUserInteraction)
+    document.addEventListener("keydown", handleUserInteraction)
+
+    return () => {
+      document.removeEventListener("click", handleUserInteraction)
+      document.removeEventListener("scroll", handleUserInteraction)
+      document.removeEventListener("keydown", handleUserInteraction)
+    }
+  }, [userInteracted])
+
+  const handleUserDataSubmit = (data: { name: string; email: string }) => {
+    localStorage.setItem("userData", JSON.stringify(data))
+    console.log("User data collected:", data)
+    // Here you would typically send this data to your backend
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b">
@@ -19,7 +67,7 @@ export default function Home() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center">
-              <Image src="/logo.svg" alt="LixtaNetworks" width={180} height={40} className="h-10 w-auto" priority />
+              <Image src="/logo.png" alt="EaseGiv" width={180} height={40} className="h-10 w-auto" priority />
             </Link>
 
             {/* Search */}
@@ -86,7 +134,7 @@ export default function Home() {
               <h2 className="text-2xl md:text-3xl font-bold mb-2">See Your Logo on Our Products</h2>
               <p className="text-gray-700 mb-4">
                 Upload your logo and instantly see how it looks on our wide range of products. Customize position, size,
-                and more!
+                and more! Minimum order quantities apply.
               </p>
               <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
                 <Link href="/customize">Try It Now</Link>
@@ -115,13 +163,19 @@ export default function Home() {
 
         {/* Stats Section */}
         <StatsSection />
+
+        {/* User Data Popup */}
+        <UserDataPopup isOpen={showUserPopup} onClose={() => setShowUserPopup(false)} onSubmit={handleUserDataSubmit} />
+
+        {/* Go to Top Button */}
+        <GoToTop />
       </main>
 
       <footer className="bg-gray-100 py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
-              <h3 className="font-bold text-lg mb-4">About LixtaNetworks</h3>
+              <h3 className="font-bold text-lg mb-4">About EaseGiv</h3>
               <ul className="space-y-2">
                 <li>
                   <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
@@ -235,7 +289,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-12 border-t border-gray-200 pt-8 text-center text-sm text-gray-500">
-            <p>© {new Date().getFullYear()} LixtaNetworks Pvt. Ltd. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} EaseGiv Pvt. Ltd. All rights reserved.</p>
           </div>
         </div>
       </footer>

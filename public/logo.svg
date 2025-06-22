@@ -1,26 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 50" fill="none">
-  <!-- Network nodes pattern -->
-  <circle cx="15" cy="15" r="3" fill="#2563eb"/>
-  <circle cx="25" cy="25" r="2" fill="#3b82f6"/>
-  <circle cx="35" cy="10" r="2.5" fill="#2563eb"/>
-  <circle cx="45" cy="20" r="2" fill="#3b82f6"/>
+  <!-- Modern geometric pattern -->
+  <circle cx="12" cy="25" r="8" fill="#2563eb" opacity="0.8"/>
+  <circle cx="25" cy="15" r="6" fill="#3b82f6" opacity="0.9"/>
+  <circle cx="25" cy="35" r="6" fill="#3b82f6" opacity="0.9"/>
+  <circle cx="38" cy="25" r="5" fill="#60a5fa" opacity="0.7"/>
   
   <!-- Connection lines -->
-  <line x1="15" y1="15" x2="25" y2="25" stroke="#2563eb" stroke-width="1.5" opacity="0.6"/>
-  <line x1="25" y1="25" x2="35" y2="10" stroke="#2563eb" stroke-width="1.5" opacity="0.6"/>
-  <line x1="35" y1="10" x2="45" y2="20" stroke="#2563eb" stroke-width="1.5" opacity="0.6"/>
-  <line x1="15" y1="15" x2="35" y2="10" stroke="#3b82f6" stroke-width="1" opacity="0.4"/>
+  <line x1="20" y1="25" x2="30" y2="15" stroke="#2563eb" stroke-width="2" opacity="0.6"/>
+  <line x1="20" y1="25" x2="30" y2="35" stroke="#2563eb" stroke-width="2" opacity="0.6"/>
+  <line x1="31" y1="15" x2="33" y2="25" stroke="#3b82f6" stroke-width="1.5" opacity="0.5"/>
+  <line x1="31" y1="35" x2="33" y2="25" stroke="#3b82f6" stroke-width="1.5" opacity="0.5"/>
   
   <!-- Company name -->
-  <text x="60" y="20" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#1f2937">
-    LixtaNetworks
+  <text x="55" y="20" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#1f2937">
+    EaseGiv
   </text>
-  <text x="60" y="35" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">
+  <text x="55" y="35" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">
     Premium Printing Solutions
   </text>
   
   <!-- Decorative element -->
-  <rect x="220" y="15" width="15" height="15" rx="2" fill="#2563eb" opacity="0.8"/>
-  <rect x="222" y="17" width="11" height="11" rx="1" fill="white" opacity="0.9"/>
-  <circle cx="227.5" cy="22.5" r="2" fill="#2563eb"/>
+  <rect x="220" y="18" width="12" height="12" rx="2" fill="#2563eb" opacity="0.8"/>
+  <circle cx="226" cy="24" r="3" fill="white" opacity="0.9"/>
 </svg>

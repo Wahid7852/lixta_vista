@@ -10,16 +10,17 @@ export default function HeroSection() {
         <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-gray-100 to-gray-200">
           <div className="relative z-10 p-6 md:p-10 flex flex-col h-full">
             <div className="flex-1">
-              <h2 className="text-3xl md:text-4xl font-bold mb-2">My Name, My Pride</h2>
-              <p className="text-lg font-medium">100 Visiting Cards at Rs 200</p>
+              <h2 className="text-3xl md:text-4xl font-bold mb-2">Custom T-Shirts</h2>
+              <p className="text-lg font-medium">Premium Quality • Multiple Logo Placements</p>
+              <p className="text-sm text-gray-600 mt-2">MOQ: 100 pieces</p>
             </div>
             <Button asChild className="self-start mt-4 bg-black hover:bg-gray-800 text-white">
-              <Link href="/visiting-cards">Shop Now</Link>
+              <Link href="/customize">Design Now</Link>
             </Button>
           </div>
           <Image
-            src="/placeholder.svg?height=400&width=600"
-            alt="Person holding a business card"
+            src="/images/hero-tshirts.jpg"
+            alt="Custom T-shirts with logos"
             width={600}
             height={400}
             className="absolute top-0 right-0 h-full w-1/2 object-cover object-left"
@@ -27,24 +28,22 @@ export default function HeroSection() {
         </div>
 
         {/* Right Hero Panel */}
-        <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-gray-100 to-gray-200">
+        <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50">
           <div className="relative z-10 p-6 md:p-10 flex flex-col h-full">
             <div className="flex-1">
-              <h2 className="text-3xl md:text-4xl font-bold mb-2">Wear your brand with pride</h2>
-              <p className="text-lg font-medium">1 Starting at Rs. 550</p>
+              <h2 className="text-3xl md:text-4xl font-bold mb-2">Upload & Preview</h2>
+              <p className="text-lg font-medium">See your logo in 3D before ordering</p>
+              <p className="text-sm text-gray-600 mt-2">Multiple placement options available</p>
             </div>
             <div className="flex flex-wrap gap-3 mt-4">
-              <Button asChild className="bg-black hover:bg-gray-800 text-white">
-                <Link href="/polo-tshirts">Custom Polo T-shirts</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link href="/tshirts">Custom T-shirts</Link>
+              <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Link href="/customize">Try 3D Preview</Link>
               </Button>
             </div>
           </div>
           <Image
-            src="/placeholder.svg?height=400&width=600"
-            alt="People wearing branded t-shirts"
+            src="/images/logo-customization-preview.jpg"
+            alt="3D T-shirt preview with logo"
             width={600}
             height={400}
             className="absolute top-0 right-0 h-full w-1/2 object-cover object-left"

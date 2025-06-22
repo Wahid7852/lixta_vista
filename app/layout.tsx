@@ -10,10 +10,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>LixtaNetworks - Premium Printing Solutions</title>
+        <title>EaseGiv - Premium Printing Solutions</title>
         <meta
           name="description"
-          content="LixtaNetworks - Your trusted partner for premium printing solutions. Custom business cards, t-shirts, mugs and more."
+          content="EaseGiv - Your trusted partner for premium printing solutions. Custom business cards, t-shirts, mugs and more."
         />
       </head>
       <body>

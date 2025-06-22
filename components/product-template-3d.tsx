@@ -6,10 +6,10 @@ import { OrbitControls, Html, Text } from "@react-three/drei"
 import * as THREE from "three"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Plus, Minus, RotateCw } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Loader2, Plus, Minus, Package } from "lucide-react"
 
 interface ProductTemplate3DProps {
   template: {
@@ -21,34 +21,83 @@ interface ProductTemplate3DProps {
     color?: string
   }
   logo: string | null
+  productColor: string
   onProductSelect?: (product: any) => void
   isSelected?: boolean
 }
 
-// Fancy Business Card with proper texture and colors
-function BusinessCard({ texture, logo, logoPosition, logoSize, logoRotation, isHighlighted, color = "#ffffff" }: any) {
+const placementOptions = {
+  "business-card": [
+    { value: "front-center", label: "Front Center" },
+    { value: "front-top-left", label: "Front Top Left" },
+    { value: "front-top-right", label: "Front Top Right" },
+    { value: "front-bottom-left", label: "Front Bottom Left" },
+    { value: "front-bottom-right", label: "Front Bottom Right" },
+    { value: "back-center", label: "Back Center" },
+    { value: "back-top-left", label: "Back Top Left" },
+    { value: "back-top-right", label: "Back Top Right" },
+  ],
+  tshirt: [
+    { value: "front-center", label: "Front Center" },
+    { value: "front-top-left", label: "Front Top Left" },
+    { value: "front-top-right", label: "Front Top Right" },
+    { value: "left-sleeve", label: "Left Sleeve" },
+    { value: "right-sleeve", label: "Right Sleeve" },
+    { value: "back-center", label: "Back Center" },
+    { value: "back-top", label: "Back Top" },
+    { value: "back-bottom", label: "Back Bottom" },
+  ],
+}
+
+// Position mappings for different placements
+const getLogoPosition = (placement: string, productType: string) => {
+  const positions = {
+    "business-card": {
+      "front-center": { x: 0, y: 0, z: 0.08, side: "front" },
+      "front-top-left": { x: -1.2, y: 0.6, z: 0.08, side: "front" },
+      "front-top-right": { x: 1.2, y: 0.6, z: 0.08, side: "front" },
+      "front-bottom-left": { x: -1.2, y: -0.6, z: 0.08, side: "front" },
+      "front-bottom-right": { x: 1.2, y: -0.6, z: 0.08, side: "front" },
+      "back-center": { x: 0, y: 0, z: -0.08, side: "back" },
+      "back-top-left": { x: 1.2, y: 0.6, z: -0.08, side: "back" },
+      "back-top-right": { x: -1.2, y: 0.6, z: -0.08, side: "back" },
+    },
+    tshirt: {
+      "front-center": { x: 0, y: 0.2, z: 0.12, side: "front" },
+      "front-top-left": { x: -0.3, y: 0.6, z: 0.12, side: "front" },
+      "front-top-right": { x: 0.3, y: 0.6, z: 0.12, side: "front" },
+      "left-sleeve": { x: -0.7, y: 0.5, z: 0.08, side: "front" },
+      "right-sleeve": { x: 0.7, y: 0.5, z: 0.08, side: "front" },
+      "back-center": { x: 0, y: 0.2, z: -0.08, side: "back" },
+      "back-top": { x: 0, y: 0.6, z: -0.08, side: "back" },
+      "back-bottom": { x: 0, y: -0.2, z: -0.08, side: "back" },
+    },
+  }
+
+  return (
+    positions[productType as keyof typeof positions]?.[placement as keyof (typeof positions)[typeof productType]] || {
+      x: 0,
+      y: 0,
+      z: 0.08,
+      side: "front",
+    }
+  )
+}
+
+// Business Card with proper front/back rendering
+function BusinessCard({ template, logo, logoPlacement, logoSize, productColor, isHighlighted, currentView }: any) {
   const meshRef = useRef<THREE.Mesh>(null)
 
-  // Create logo texture if logo exists
-  const logoTexture = useMemo(() => {
-    if (logo) {
-      const loader = new THREE.TextureLoader()
-      const tex = loader.load(logo)
-      tex.flipY = false
-      return tex
-    }
-    return null
-  }, [logo])
+  const logoPosition = getLogoPosition(logoPlacement, "business-card")
 
-  // Create fancy card texture with proper colors
+  // Create card texture
   const cardTexture = useMemo(() => {
     const canvas = document.createElement("canvas")
     canvas.width = 1024
     canvas.height = 1024
     const ctx = canvas.getContext("2d")
     if (ctx) {
-      // Base color from template
-      ctx.fillStyle = color
+      ctx.fillStyle = productColor
       ctx.fillRect(0, 0, 1024, 1024)
 
       // Add texture pattern
@@ -60,10 +109,10 @@ function BusinessCard({ texture, logo, logoPosition, logoSize, logoRotation, isH
       }
 
       // Fancy corner patterns
-      ctx.strokeStyle = color === "#2c2c2c" ? "rgba(255, 255, 255, 0.3)" : "rgba(0, 0, 0, 0.2)"
+      ctx.strokeStyle = productColor === "#2c2c2c" ? "rgba(255, 255, 255, 0.3)" : "rgba(0, 0, 0, 0.2)"
       ctx.lineWidth = 3
 
-      // Top left corner
+      // Corners
       ctx.beginPath()
       ctx.moveTo(50, 50)
       ctx.lineTo(150, 50)
@@ -71,7 +120,6 @@ function BusinessCard({ texture, logo, logoPosition, logoSize, logoRotation, isH
       ctx.lineTo(50, 150)
       ctx.stroke()
 
-      // Bottom right corner
       ctx.beginPath()
       ctx.moveTo(974, 974)
       ctx.lineTo(874, 974)
@@ -79,17 +127,15 @@ function BusinessCard({ texture, logo, logoPosition, logoSize, logoRotation, isH
       ctx.lineTo(974, 874)
       ctx.stroke()
 
-      // Gold accent for luxury cards
-      if (color === "#ffd700") {
+      if (productColor === "#ffd700") {
         ctx.fillStyle = "#ffed4e"
         ctx.fillRect(0, 0, 1024, 15)
         ctx.fillRect(0, 1009, 1024, 15)
       }
     }
     return new THREE.CanvasTexture(canvas)
-  }, [color])
+  }, [productColor])
 
-  // Simple rotation animation
   useFrame((state) => {
     if (meshRef.current) {
       const time = state.clock.getElapsedTime()
@@ -101,6 +147,23 @@ function BusinessCard({ texture, logo, logoPosition, logoSize, logoRotation, isH
     }
   })
 
+  // Create logo texture
+  const logoTexture = useMemo(() => {
+    if (logo) {
+      const loader = new THREE.TextureLoader()
+      const tex = loader.load(logo)
+      tex.flipY = false
+      return tex
+    }
+    return null
+  }, [logo])
+
+  // Determine if logo should be visible based on current view and placement
+  const shouldShowLogo = () => {
+    if (!logo || !logoTexture) return false
+    return true
+  }
+
   return (
     <group position={[0, 0, 0]}>
       {/* Main card body */}
@@ -109,13 +172,9 @@ function BusinessCard({ texture, logo, logoPosition, logoSize, logoRotation, isH
         <meshBasicMaterial map={cardTexture} />
       </mesh>
 
-      {/* Logo - positioned on TOP with higher Z value and proper layering */}
-      {logo && logoTexture && (
-        <mesh
-          position={[(logoPosition.x / 50 - 1) * 1.5, 0.08, (logoPosition.y / 50 - 1) * 0.8]}
-          rotation={[0, 0, (logoRotation * Math.PI) / 180]}
-          renderOrder={1}
-        >
+      {/* Logo - only render if it should be visible */}
+      {shouldShowLogo() && (
+        <mesh position={[logoPosition.x, logoPosition.y, logoPosition.z]} renderOrder={1}>
           <planeGeometry args={[logoSize / 23, logoSize / 23]} />
           <meshBasicMaterial
             map={logoTexture}
@@ -136,33 +195,21 @@ function BusinessCard({ texture, logo, logoPosition, logoSize, logoRotation, isH
   )
 }
 
-// Colorful T-Shirt with texture
-function TShirt({ texture, logo, logoPosition, logoSize, logoRotation, isHighlighted, color = "#dc2626" }: any) {
+// T-Shirt with proper front/back rendering
+function TShirt({ template, logo, logoPlacement, logoSize, productColor, isHighlighted, currentView }: any) {
   const groupRef = useRef<THREE.Group>(null)
 
-  // Create logo texture if logo exists
-  const logoTexture = useMemo(() => {
-    if (logo) {
-      const loader = new THREE.TextureLoader()
-      const tex = loader.load(logo)
-      tex.flipY = false
-      return tex
-    }
-    return null
-  }, [logo])
+  const logoPosition = getLogoPosition(logoPlacement, "tshirt")
 
-  // Simple fabric texture with color
   const fabricTexture = useMemo(() => {
     const canvas = document.createElement("canvas")
     canvas.width = 256
     canvas.height = 256
     const ctx = canvas.getContext("2d")
     if (ctx) {
-      // Base color
-      ctx.fillStyle = color
+      ctx.fillStyle = productColor
       ctx.fillRect(0, 0, 256, 256)
 
-      // Fabric texture
       for (let x = 0; x < 256; x += 4) {
         for (let y = 0; y < 256; y += 4) {
           const brightness = Math.random() * 0.1
@@ -175,9 +222,8 @@ function TShirt({ texture, logo, logoPosition, logoSize, logoRotation, isHighlig
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping
     texture.repeat.set(4, 4)
     return texture
-  }, [color])
+  }, [productColor])
 
-  // Simple rotation animation
   useFrame((state) => {
     if (groupRef.current) {
       const time = state.clock.getElapsedTime()
@@ -189,34 +235,40 @@ function TShirt({ texture, logo, logoPosition, logoSize, logoRotation, isHighlig
     }
   })
 
-  // T-shirt shape
   const tshirtShape = useMemo(() => {
     const shape = new THREE.Shape()
-
-    // T-shirt outline
-    shape.moveTo(-0.7, -1.2) // Bottom left
-    shape.lineTo(0.7, -1.2) // Bottom right
-    shape.lineTo(0.6, 0.4) // Right side up to armpit
-
-    // Right sleeve
-    shape.lineTo(1.0, 0.5) // Right sleeve outer
-    shape.lineTo(0.9, 0.7) // Right sleeve top
-    shape.lineTo(0.4, 0.6) // Right sleeve inner
-
-    // Neck
-    shape.lineTo(0.2, 0.9) // Right neck
-    shape.quadraticCurveTo(0, 0.95, -0.2, 0.9) // Neck curve
-
-    // Left sleeve
-    shape.lineTo(-0.4, 0.6) // Left sleeve inner
-    shape.lineTo(-0.9, 0.7) // Left sleeve top
-    shape.lineTo(-1.0, 0.5) // Left sleeve outer
-    shape.lineTo(-0.6, 0.4) // Left side down to armpit
-
-    shape.lineTo(-0.7, -1.2) // Back to start
-
+    shape.moveTo(-0.7, -1.2)
+    shape.lineTo(0.7, -1.2)
+    shape.lineTo(0.6, 0.4)
+    shape.lineTo(1.0, 0.5)
+    shape.lineTo(0.9, 0.7)
+    shape.lineTo(0.4, 0.6)
+    shape.lineTo(0.2, 0.9)
+    shape.quadraticCurveTo(0, 0.95, -0.2, 0.9)
+    shape.lineTo(-0.4, 0.6)
+    shape.lineTo(-0.9, 0.7)
+    shape.lineTo(-1.0, 0.5)
+    shape.lineTo(-0.6, 0.4)
+    shape.lineTo(-0.7, -1.2)
     return shape
   }, [])
+
+  // Create logo texture
+  const logoTexture = useMemo(() => {
+    if (logo) {
+      const loader = new THREE.TextureLoader()
+      const tex = loader.load(logo)
+      tex.flipY = false
+      return tex
+    }
+    return null
+  }, [logo])
+
+  // Determine if logo should be visible based on current view and placement
+  const shouldShowLogo = () => {
+    if (!logo || !logoTexture) return false
+    return true
+  }
 
   return (
     <group ref={groupRef} position={[0, 0, 0]} scale={[1.3, 1.3, 1.3]}>
@@ -237,14 +289,13 @@ function TShirt({ texture, logo, logoPosition, logoSize, logoRotation, isHighlig
       {/* Collar */}
       <mesh position={[0, 0.85, 0.05]}>
         <ringGeometry args={[0.16, 0.22, 32]} />
-        <meshBasicMaterial color={color} side={THREE.DoubleSide} />
+        <meshBasicMaterial color={productColor} side={THREE.DoubleSide} />
       </mesh>
 
-      {/* Logo - positioned on TOP with higher Z value and proper layering */}
-      {logo && logoTexture && (
+      {/* Logo - only render if it should be visible */}
+      {shouldShowLogo() && (
         <mesh
-          position={[(logoPosition.x / 50 - 1) * 0.45, 0.2 + (logoPosition.y / 50 - 1) * 0.6, 0.12]}
-          rotation={[0, 0, (logoRotation * Math.PI) / 180]}
+          position={[logoPosition.x, logoPosition.y, logoPosition.z]}
           scale={[logoSize / 35, logoSize / 35, 1]}
           renderOrder={1}
         >
@@ -279,63 +330,44 @@ function LoadingFallback() {
   )
 }
 
-export default function ProductTemplate3D({ template, logo, onProductSelect, isSelected }: ProductTemplate3DProps) {
-  const [logoPosition, setLogoPosition] = useState({ x: 50, y: 50 })
+export default function ProductTemplate3D({
+  template,
+  logo,
+  productColor,
+  onProductSelect,
+  isSelected,
+}: ProductTemplate3DProps) {
+  const [logoPlacement, setLogoPlacement] = useState("front-center")
   const [logoSize, setLogoSize] = useState(30)
-  const [logoRotation, setLogoRotation] = useState(0)
-  const [quantity, setQuantity] = useState(1)
-
-  const handleHorizontalPosition = (value: number[]) => {
-    if (value && value.length > 0) {
-      setLogoPosition((prev) => ({ ...prev, x: value[0] }))
-    }
-  }
-
-  const handleVerticalPosition = (value: number[]) => {
-    if (value && value.length > 0) {
-      setLogoPosition((prev) => ({ ...prev, y: value[0] }))
-    }
-  }
-
-  const handleLogoSize = (value: number[]) => {
-    if (value && value.length > 0) {
-      setLogoSize(value[0])
-    }
-  }
-
-  const handleLogoRotation = (value: number[]) => {
-    if (value && value.length > 0) {
-      setLogoRotation(value[0])
-    }
-  }
-
-  const resetLogoRotation = () => {
-    setLogoRotation(0)
-  }
+  const [quantity, setQuantity] = useState(100) // Minimum 100
+  const [currentView, setCurrentView] = useState("front")
 
   const handleProductSelect = () => {
     if (onProductSelect) {
       onProductSelect({
         ...template,
         quantity,
-        logoPosition,
+        logoPlacement,
         logoSize,
-        logoRotation,
+        productColor,
         hasLogo: !!logo,
-        totalPrice: (template.basePrice + (logo ? 50 : 0)) * quantity,
+        moq: quantity,
       })
     }
   }
 
+  const currentPlacements =
+    placementOptions[template.model as keyof typeof placementOptions] || placementOptions["business-card"]
+
   const renderModel = () => {
     const props = {
-      texture: template.image,
+      template,
       logo,
-      logoPosition,
+      logoPlacement,
       logoSize,
-      logoRotation,
+      productColor,
       isHighlighted: isSelected,
-      color: template.color,
+      currentView,
     }
 
     try {
@@ -372,10 +404,7 @@ export default function ProductTemplate3D({ template, logo, onProductSelect, isS
           )}
 
           <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-            {/* Background color based on product type */}
             <color attach="background" args={[template.model === "tshirt" ? "#aaaaaa" : "#f0f0f0"]} />
-
-            {/* Simple ambient light - no shadows */}
             <ambientLight intensity={1.0} />
 
             <Suspense fallback={<LoadingFallback />}>
@@ -403,61 +432,61 @@ export default function ProductTemplate3D({ template, logo, onProductSelect, isS
             </div>
           </div>
 
+          {/* MOQ Display */}
           <div className="flex items-center justify-between mb-4">
-            <span className="text-lg font-semibold text-blue-600">₹{template.basePrice}</span>
             <div className="flex items-center space-x-2">
-              <Button size="sm" variant="outline" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
+              <Package className="h-4 w-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-600">MOQ: {quantity} pieces</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button size="sm" variant="outline" onClick={() => setQuantity(Math.max(100, quantity - 50))}>
                 <Minus className="h-3 w-3" />
               </Button>
-              <span className="w-8 text-center">{quantity}</span>
-              <Button size="sm" variant="outline" onClick={() => setQuantity(quantity + 1)}>
+              <span className="w-16 text-center text-sm">{quantity}</span>
+              <Button size="sm" variant="outline" onClick={() => setQuantity(quantity + 50)}>
                 <Plus className="h-3 w-3" />
               </Button>
             </div>
           </div>
 
           {logo && (
-            <div className="mt-4 space-y-4">
-              <div className="bg-green-50 border border-green-200 rounded-md p-3 mb-4">
+            <div className="space-y-3">
+              <div className="bg-green-50 border border-green-200 rounded-md p-3">
                 <p className="text-green-800 text-sm font-medium">✓ Logo Applied Successfully</p>
-                <p className="text-green-600 text-xs">Adjust position, size, and rotation below</p>
+                <p className="text-green-600 text-xs">Customize placement and size below</p>
               </div>
 
+              {/* Logo Placement */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">Horizontal Position</span>
-                  <span className="text-xs text-gray-500">{logoPosition.x}%</span>
-                </div>
-                <Slider value={[logoPosition.x]} min={10} max={90} step={1} onValueChange={handleHorizontalPosition} />
+                <label className="text-xs text-gray-500 font-medium">Logo Placement</label>
+                <Select value={logoPlacement} onValueChange={setLogoPlacement}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {currentPlacements.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
+              {/* Logo Size */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">Vertical Position</span>
-                  <span className="text-xs text-gray-500">{logoPosition.y}%</span>
-                </div>
-                <Slider value={[logoPosition.y]} min={10} max={90} step={1} onValueChange={handleVerticalPosition} />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">Logo Size</span>
-                  <span className="text-xs text-gray-500">{logoSize}%</span>
-                </div>
-                <Slider value={[logoSize]} min={10} max={60} step={1} onValueChange={handleLogoSize} />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">Logo Rotation</span>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs text-gray-500">{logoRotation}°</span>
-                    <Button size="sm" variant="ghost" onClick={resetLogoRotation}>
-                      <RotateCw className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-                <Slider value={[logoRotation]} min={-180} max={180} step={5} onValueChange={handleLogoRotation} />
+                <label className="text-xs text-gray-500 font-medium">Logo Size</label>
+                <Select value={logoSize.toString()} onValueChange={(value) => setLogoSize(Number.parseInt(value))}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="20">Small (20%)</SelectItem>
+                    <SelectItem value="30">Medium (30%)</SelectItem>
+                    <SelectItem value="40">Large (40%)</SelectItem>
+                    <SelectItem value="50">Extra Large (50%)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}
