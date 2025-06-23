@@ -25,7 +25,7 @@ const logoLocations = [
 function SimpleTShirt({ productColor, logos, selectedLocations, logoConfigs }: any) {
   const groupRef = useRef<THREE.Group>(null)
 
-  // Simple logo texture loading
+  // Fixed logo texture loading - no flipY!
   const logoTextures = useMemo(() => {
     const textures: Record<string, THREE.Texture> = {}
 
@@ -33,7 +33,9 @@ function SimpleTShirt({ productColor, logos, selectedLocations, logoConfigs }: a
       if (logo.url) {
         const loader = new THREE.TextureLoader()
         const tex = loader.load(logo.url)
-        tex.flipY = false
+        // This is the fix - set flipY to true for correct orientation
+        tex.flipY = true
+        tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping
         textures[logo.id] = tex
       }
     })
@@ -98,30 +100,21 @@ function SimpleTShirt({ productColor, logos, selectedLocations, logoConfigs }: a
         const config = logoConfigs[locationId]
 
         if (!location || !config) {
-          console.log(`Missing location or config for ${locationId}`)
           return null
         }
 
         const selectedLogo = logos.find((logo: any) => logo.id === config.logoId)
         if (!selectedLogo) {
-          console.log(`Logo not found for config logoId: ${config.logoId}`)
           return null
         }
 
         const logoTexture = logoTextures[selectedLogo.id]
         if (!logoTexture) {
-          console.log(`Texture not loaded for logo: ${selectedLogo.name}`)
           return null
         }
 
         const sizeMultiplier = (config.size / 100) * location.scale
         const zRotation = (config.rotation || 0) * (Math.PI / 180)
-
-        console.log(`Rendering logo ${selectedLogo.name} at ${locationId}`, {
-          position: location.position,
-          size: sizeMultiplier,
-          rotation: zRotation,
-        })
 
         return (
           <mesh
@@ -163,13 +156,6 @@ export default function RealisticTShirt3D({
   selectedLocations,
   logoConfigs,
 }: RealisticTShirt3DProps) {
-  console.log("RealisticTShirt3D props:", {
-    logosCount: logos.length,
-    selectedLocations,
-    logoConfigs,
-    productColor,
-  })
-
   return (
     <div className="w-full h-full bg-gray-100 rounded-lg overflow-hidden">
       <Canvas camera={{ position: [0, 0, 3.2], fov: 45 }}>

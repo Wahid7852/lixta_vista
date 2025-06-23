@@ -3,18 +3,116 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Search, ShoppingBag } from "lucide-react"
+import { Search, ShoppingBag, Star, ArrowRight, Zap, Users, Award, Truck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import CategoryNavigation from "@/components/category-navigation"
 import PromotionBanner from "@/components/promotion-banner"
-import HeroSection from "@/components/hero-section"
-import CategoryShowcase from "@/components/category-showcase"
-import FeaturesSection from "@/components/features-section"
-import TestimonialsSection from "@/components/testimonials-section"
-import StatsSection from "@/components/stats-section"
 import UserDataPopup from "@/components/user-data-popup"
 import GoToTop from "@/components/go-to-top"
+
+const featuredProducts = [
+  {
+    id: 1,
+    name: "Custom T-Shirts",
+    description: "Premium quality custom printed T-shirts",
+    image: "/images/categories/tshirts.jpg",
+    price: "Starting ₹299",
+    rating: 4.8,
+    reviews: 2847,
+    badge: "Most Popular",
+    color: "from-blue-500 to-purple-600",
+  },
+  {
+    id: 2,
+    name: "Business Cards",
+    description: "Professional business cards that make an impression",
+    image: "/images/categories/visiting-cards.jpg",
+    price: "Starting ₹199",
+    rating: 4.9,
+    reviews: 1923,
+    badge: "Best Quality",
+    color: "from-green-500 to-teal-600",
+  },
+  {
+    id: 3,
+    name: "Custom Mugs",
+    description: "Personalized mugs for gifts and promotions",
+    image: "/images/categories/photo-gifts.jpg",
+    price: "Starting ₹249",
+    rating: 4.7,
+    reviews: 1456,
+    badge: "Great Gift",
+    color: "from-orange-500 to-red-600",
+  },
+  {
+    id: 4,
+    name: "Polo T-Shirts",
+    description: "Corporate polo shirts with custom branding",
+    image: "/images/categories/polo-tshirts.jpg",
+    price: "Starting ₹399",
+    rating: 4.8,
+    reviews: 987,
+    badge: "Corporate",
+    color: "from-purple-500 to-pink-600",
+  },
+]
+
+const quickServices = [
+  {
+    icon: "🎨",
+    title: "Design Online",
+    description: "Use our easy design tools",
+    color: "bg-blue-100 text-blue-800",
+  },
+  {
+    icon: "📤",
+    title: "Upload Logo",
+    description: "Add your existing designs",
+    color: "bg-green-100 text-green-800",
+  },
+  {
+    icon: "🚀",
+    title: "Quick Delivery",
+    description: "Fast turnaround times",
+    color: "bg-purple-100 text-purple-800",
+  },
+  {
+    icon: "💎",
+    title: "Premium Quality",
+    description: "High-quality materials",
+    color: "bg-orange-100 text-orange-800",
+  },
+]
+
+const testimonials = [
+  {
+    name: "Rajesh Kumar",
+    role: "Startup Founder",
+    image: "/images/testimonials/person1.jpg",
+    rating: 5,
+    text: "Amazing quality and super fast delivery! Our startup t-shirts look incredible.",
+    company: "TechStart Solutions",
+  },
+  {
+    name: "Priya Sharma",
+    role: "Marketing Manager",
+    image: "/images/testimonials/person2.jpg",
+    rating: 5,
+    text: "The business cards exceeded our expectations. Professional quality at great prices!",
+    company: "Digital Marketing Pro",
+  },
+  {
+    name: "Amit Patel",
+    role: "Event Organizer",
+    image: "/images/testimonials/person3.jpg",
+    rating: 5,
+    text: "Perfect for our corporate events. The team loved their custom merchandise!",
+    company: "EventCraft India",
+  },
+]
 
 export default function Home() {
   const [showUserPopup, setShowUserPopup] = useState(false)
@@ -25,7 +123,6 @@ export default function Home() {
     if (!userInteracted) return
 
     const timer = setTimeout(() => {
-      // Check if user data already exists
       const existingUserData = localStorage.getItem("userData")
       if (!existingUserData) {
         setShowUserPopup(true)
@@ -57,23 +154,26 @@ export default function Home() {
   const handleUserDataSubmit = (data: { name: string; email: string }) => {
     localStorage.setItem("userData", JSON.stringify(data))
     console.log("User data collected:", data)
-    // Here you would typically send this data to your backend
   }
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b">
+      <header className="border-b bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center">
-              <Image src="/logo.png" alt="EaseGiv" width={180} height={40} className="h-10 w-auto" priority />
+              <Image src="/logo.svg" alt="EaseGiv" width={180} height={40} className="h-10 w-auto" priority />
             </Link>
 
             {/* Search */}
             <div className="hidden md:flex relative flex-1 max-w-md mx-6">
-              <Input type="search" placeholder="Search" className="pr-10 rounded-md border-gray-300" />
-              <Button size="icon" variant="ghost" className="absolute right-0 top-0 h-full">
+              <Input
+                type="search"
+                placeholder="Search for products..."
+                className="pr-10 rounded-full border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+              />
+              <Button size="icon" variant="ghost" className="absolute right-0 top-0 h-full rounded-full">
                 <Search className="h-4 w-4" />
                 <span className="sr-only">Search</span>
               </Button>
@@ -82,23 +182,26 @@ export default function Home() {
             {/* Navigation */}
             <nav className="flex items-center space-x-4">
               <div className="hidden md:block text-right">
-                <div className="text-xs text-muted-foreground">Help is here</div>
-                <div className="text-xs font-medium">+91-80-1234-5678</div>
+                <div className="text-xs text-muted-foreground">Need Help?</div>
+                <div className="text-xs font-medium text-blue-600">+91-80-1234-5678</div>
               </div>
-              <Link href="/projects" className="hidden md:flex items-center text-sm font-medium">
+              <Link href="/projects" className="hidden md:flex items-center text-sm font-medium hover:text-blue-600">
                 <Image src="/icons/projects.svg" alt="" width={20} height={20} className="mr-1" />
                 My Projects
               </Link>
-              <Link href="/favorites" className="hidden md:flex items-center text-sm font-medium">
+              <Link href="/favorites" className="hidden md:flex items-center text-sm font-medium hover:text-blue-600">
                 <Image src="/icons/heart.svg" alt="" width={20} height={20} className="mr-1" />
-                My Favorites
+                Favorites
               </Link>
-              <Link href="/signin" className="hidden md:flex items-center text-sm font-medium">
+              <Link href="/signin" className="hidden md:flex items-center text-sm font-medium hover:text-blue-600">
                 <Image src="/icons/user.svg" alt="" width={20} height={20} className="mr-1" />
                 Sign in
               </Link>
-              <Link href="/cart" className="flex items-center text-sm font-medium">
-                <ShoppingBag className="h-5 w-5 mr-1" />
+              <Link
+                href="/cart"
+                className="flex items-center text-sm font-medium bg-blue-600 text-white px-3 py-2 rounded-full hover:bg-blue-700"
+              >
+                <ShoppingBag className="h-4 w-4 mr-1" />
                 <span className="hidden md:inline">Cart</span>
               </Link>
             </nav>
@@ -108,7 +211,11 @@ export default function Home() {
         {/* Mobile Search */}
         <div className="md:hidden px-4 pb-4">
           <div className="relative">
-            <Input type="search" placeholder="Search" className="pr-10 rounded-md border-gray-300 w-full" />
+            <Input
+              type="search"
+              placeholder="Search for products..."
+              className="pr-10 rounded-full border-gray-300 w-full"
+            />
             <Button size="icon" variant="ghost" className="absolute right-0 top-0 h-full">
               <Search className="h-4 w-4" />
               <span className="sr-only">Search</span>
@@ -125,44 +232,334 @@ export default function Home() {
         <PromotionBanner />
 
         {/* Hero Section */}
-        <HeroSection />
+        <section className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white overflow-hidden">
+          <div className="absolute inset-0 bg-black opacity-20"></div>
+          <div className="absolute inset-0">
+            <div className="absolute top-10 left-10 w-20 h-20 bg-white opacity-10 rounded-full animate-pulse"></div>
+            <div className="absolute top-32 right-20 w-16 h-16 bg-yellow-300 opacity-20 rounded-full animate-bounce"></div>
+            <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-green-300 opacity-15 rounded-full animate-pulse"></div>
+          </div>
 
-        {/* Customize Your Products CTA */}
-        <div className="container mx-auto px-4 py-12">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 md:p-8 flex flex-col md:flex-row items-center justify-between">
-            <div className="mb-6 md:mb-0 md:mr-6">
-              <h2 className="text-2xl md:text-3xl font-bold mb-2">See Your Logo on Our Products</h2>
-              <p className="text-gray-700 mb-4">
-                Upload your logo and instantly see how it looks on our wide range of products. Customize position, size,
-                and more! Minimum order quantities apply.
-              </p>
-              <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
-                <Link href="/customize">Try It Now</Link>
-              </Button>
-            </div>
-            <div className="w-full md:w-1/3">
-              <Image
-                src="/images/logo-customization-preview.jpg"
-                alt="Logo customization preview"
-                width={300}
-                height={200}
-                className="w-full h-auto rounded-md shadow-lg"
-              />
+          <div className="relative container mx-auto px-4 py-20">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="space-y-8">
+                <div className="space-y-4">
+                  <Badge className="bg-yellow-400 text-black font-bold px-4 py-2 text-sm">
+                    🔥 India's #1 Custom Printing Platform
+                  </Badge>
+                  <h1 className="text-5xl md:text-6xl font-bold leading-tight">
+                    Design. Print.
+                    <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
+                      {" "}
+                      Deliver.
+                    </span>
+                  </h1>
+                  <p className="text-xl text-blue-100 leading-relaxed">
+                    Create stunning custom products with our easy-to-use design tools. From business cards to t-shirts,
+                    we've got you covered!
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="bg-white text-blue-600 hover:bg-gray-100 font-bold px-8 py-4 text-lg rounded-full shadow-lg hover:shadow-xl transition-all"
+                  >
+                    <Link href="/customize">
+                      🎨 Start Designing
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    size="lg"
+                    variant="outline"
+                    className="border-white text-white hover:bg-white hover:text-blue-600 font-bold px-8 py-4 text-lg rounded-full"
+                  >
+                    <Link href="#products">View Products</Link>
+                  </Button>
+                </div>
+
+                <div className="flex items-center space-x-8 pt-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">2M+</div>
+                    <div className="text-sm text-blue-200">Happy Customers</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">50M+</div>
+                    <div className="text-sm text-blue-200">Products Printed</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">4.9★</div>
+                    <div className="text-sm text-blue-200">Customer Rating</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative">
+                <div className="relative z-10">
+                  <Image
+                    src="/images/hero-tshirts.jpg"
+                    alt="Custom T-shirts showcase"
+                    width={600}
+                    height={500}
+                    className="rounded-2xl shadow-2xl"
+                  />
+                </div>
+                <div className="absolute -top-4 -right-4 w-full h-full bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl opacity-20"></div>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Category Showcase */}
-        <CategoryShowcase />
+        {/* Quick Services */}
+        <section className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">How It Works</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">Get your custom products in just a few simple steps</p>
+            </div>
 
-        {/* Features Section */}
-        <FeaturesSection />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {quickServices.map((service, index) => (
+                <Card key={index} className="text-center p-6 hover:shadow-lg transition-shadow border-0 bg-white">
+                  <CardContent className="pt-6">
+                    <div
+                      className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${service.color}`}
+                    >
+                      <span className="text-2xl">{service.icon}</span>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">{service.title}</h3>
+                    <p className="text-gray-600 text-sm">{service.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
 
-        {/* Testimonials Section */}
-        <TestimonialsSection />
+        {/* Featured Products */}
+        <section id="products" className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold mb-4">
+                Our{" "}
+                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Featured Products
+                </span>
+              </h2>
+              <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+                Discover our most popular custom printing solutions
+              </p>
+            </div>
 
-        {/* Stats Section */}
-        <StatsSection />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((product) => (
+                <Card
+                  key={product.id}
+                  className="overflow-hidden hover:shadow-xl transition-all duration-300 group border-0"
+                >
+                  <div className="relative">
+                    <Image
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.name}
+                      width={400}
+                      height={300}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <Badge className={`bg-gradient-to-r ${product.color} text-white font-bold`}>
+                        {product.badge}
+                      </Badge>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
+                  <CardContent className="p-6">
+                    <h3 className="font-bold text-lg mb-2">{product.name}</h3>
+                    <p className="text-gray-600 text-sm mb-3">{product.description}</p>
+
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-4 w-4 ${
+                              i < Math.floor(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                            }`}
+                          />
+                        ))}
+                        <span className="text-sm text-gray-600 ml-1">({product.reviews})</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-bold text-blue-600">{product.price}</span>
+                      <Button
+                        asChild
+                        size="sm"
+                        className={`bg-gradient-to-r ${product.color} text-white hover:shadow-lg transition-all`}
+                      >
+                        <Link href="/customize">Customize</Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="text-center mt-12">
+              <Button
+                asChild
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg px-8 py-4 rounded-full"
+              >
+                <Link href="/customize">
+                  View All Products
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Why Choose Us */}
+        <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold mb-4">Why Choose EaseGiv?</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+                We're committed to delivering the best custom printing experience
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[
+                {
+                  icon: <Zap className="h-8 w-8" />,
+                  title: "Lightning Fast",
+                  description: "Quick turnaround times without compromising quality",
+                  color: "from-yellow-400 to-orange-500",
+                },
+                {
+                  icon: <Award className="h-8 w-8" />,
+                  title: "Premium Quality",
+                  description: "High-quality materials and state-of-the-art printing",
+                  color: "from-purple-400 to-pink-500",
+                },
+                {
+                  icon: <Users className="h-8 w-8" />,
+                  title: "Expert Support",
+                  description: "Dedicated customer support team to help you",
+                  color: "from-green-400 to-blue-500",
+                },
+                {
+                  icon: <Truck className="h-8 w-8" />,
+                  title: "Free Shipping",
+                  description: "Free delivery on orders above ₹1,000",
+                  color: "from-blue-400 to-purple-500",
+                },
+              ].map((feature, index) => (
+                <Card
+                  key={index}
+                  className="text-center p-8 hover:shadow-xl transition-all duration-300 border-0 bg-white"
+                >
+                  <CardContent className="pt-6">
+                    <div
+                      className={`w-16 h-16 mx-auto mb-6 bg-gradient-to-r ${feature.color} rounded-full flex items-center justify-center text-white`}
+                    >
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                    <p className="text-gray-600">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Customer Testimonials */}
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold mb-4">
+                What Our{" "}
+                <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                  Customers Say
+                </span>
+              </h2>
+              <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+                Join thousands of satisfied customers who trust us with their printing needs
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {testimonials.map((testimonial, index) => (
+                <Card key={index} className="bg-white hover:shadow-xl transition-all duration-300 border-0">
+                  <CardContent className="p-8">
+                    <div className="flex items-center mb-6">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+                    <p className="text-gray-700 mb-6 italic">"{testimonial.text}"</p>
+                    <div className="flex items-center">
+                      <Image
+                        src={testimonial.image || "/placeholder.svg"}
+                        alt={testimonial.name}
+                        width={50}
+                        height={50}
+                        className="rounded-full mr-4"
+                      />
+                      <div>
+                        <div className="font-bold text-gray-900">{testimonial.name}</div>
+                        <div className="text-sm text-gray-600">{testimonial.role}</div>
+                        <div className="text-xs text-blue-600">{testimonial.company}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-black opacity-20"></div>
+          <div className="absolute inset-0">
+            <div className="absolute top-10 left-10 w-32 h-32 bg-white opacity-10 rounded-full animate-pulse"></div>
+            <div className="absolute bottom-10 right-10 w-24 h-24 bg-yellow-300 opacity-20 rounded-full animate-bounce"></div>
+          </div>
+
+          <div className="relative container mx-auto px-4 text-center">
+            <h2 className="text-5xl font-bold mb-6">Ready to Get Started?</h2>
+            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+              Join millions of customers who trust EaseGiv for their custom printing needs. Start designing today!
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                asChild
+                size="lg"
+                className="bg-white text-blue-600 hover:bg-gray-100 font-bold px-8 py-4 text-lg rounded-full shadow-lg hover:shadow-xl transition-all"
+              >
+                <Link href="/customize">
+                  🚀 Start Your Project
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-blue-600 font-bold px-8 py-4 text-lg rounded-full"
+              >
+                <Link href="#contact">Contact Sales</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
 
         {/* User Data Popup */}
         <UserDataPopup isOpen={showUserPopup} onClose={() => setShowUserPopup(false)} onSubmit={handleUserDataSubmit} />
@@ -171,125 +568,74 @@ export default function Home() {
         <GoToTop />
       </main>
 
-      <footer className="bg-gray-100 py-12">
+      <footer className="bg-gray-900 text-white py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
-              <h3 className="font-bold text-lg mb-4">About EaseGiv</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                    Our Story
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                    Careers
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                    Press
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                    Blog
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4">Customer Service</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                    Contact Us
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                    FAQs
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                    Shipping & Returns
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                    Order Status
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4">Legal</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                    Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                    Cookie Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                    Accessibility
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4">Connect With Us</h3>
-              <div className="flex space-x-4 mb-4">
-                <Link href="#" className="text-gray-600 hover:text-gray-900">
-                  <span className="sr-only">Facebook</span>
-                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      fillRule="evenodd"
-                      d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </Link>
-                <Link href="#" className="text-gray-600 hover:text-gray-900">
-                  <span className="sr-only">Instagram</span>
-                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      fillRule="evenodd"
-                      d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </Link>
-                <Link href="#" className="text-gray-600 hover:text-gray-900">
-                  <span className="sr-only">Twitter</span>
-                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-                  </svg>
-                </Link>
+              <div className="flex items-center mb-6">
+                <Image
+                  src="/logo.svg"
+                  alt="EaseGiv"
+                  width={150}
+                  height={35}
+                  className="h-8 w-auto filter brightness-0 invert"
+                />
               </div>
-              <div>
-                <h4 className="font-semibold text-sm mb-2">Subscribe to our newsletter</h4>
-                <div className="flex">
-                  <Input type="email" placeholder="Your email" className="rounded-r-none" />
-                  <Button className="rounded-l-none bg-blue-600 hover:bg-blue-700">Subscribe</Button>
-                </div>
+              <p className="text-gray-400 mb-4">
+                India's leading custom printing platform. Quality products, fast delivery, and exceptional service.
+              </p>
+              <div className="flex space-x-4">
+                {["facebook", "twitter", "instagram", "linkedin"].map((social) => (
+                  <Link key={social} href="#" className="text-gray-400 hover:text-white transition-colors">
+                    <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+                      <span className="text-sm font-bold">{social[0].toUpperCase()}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-lg mb-6">Products</h3>
+              <ul className="space-y-3">
+                {["Custom T-Shirts", "Business Cards", "Mugs & Gifts", "Stationery", "Signs & Banners"].map((item) => (
+                  <li key={item}>
+                    <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                      {item}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-lg mb-6">Support</h3>
+              <ul className="space-y-3">
+                {["Help Center", "Contact Us", "Order Status", "Shipping Info", "Returns"].map((item) => (
+                  <li key={item}>
+                    <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                      {item}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-lg mb-6">Contact</h3>
+              <div className="space-y-3 text-gray-400">
+                <div>📧 hello@easegiv.com</div>
+                <div>📞 +91-80-1234-5678</div>
+                <div>📍 Bangalore, Karnataka</div>
+                <div>🕒 Mon-Sat: 9AM-7PM</div>
               </div>
             </div>
           </div>
-          <div className="mt-12 border-t border-gray-200 pt-8 text-center text-sm text-gray-500">
-            <p>© {new Date().getFullYear()} EaseGiv Pvt. Ltd. All rights reserved.</p>
+
+          <div className="border-t border-gray-700 mt-12 pt-8 text-center text-gray-400">
+            <p>
+              © {new Date().getFullYear()} EaseGiv Pvt. Ltd. All rights reserved. | Privacy Policy | Terms of Service
+            </p>
           </div>
         </div>
       </footer>

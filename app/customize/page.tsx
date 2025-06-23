@@ -20,7 +20,6 @@ interface LogoItem {
 interface LogoConfig {
   logoId: string
   size: number
-  rotation: number
 }
 
 export default function CustomizePage() {
@@ -31,7 +30,6 @@ export default function CustomizePage() {
   const [showQuotation, setShowQuotation] = useState(false)
 
   const handleLogoConfigChange = (locationId: string, config: LogoConfig) => {
-    console.log("Logo config changed:", locationId, config)
     setLogoConfigs((prev) => ({
       ...prev,
       [locationId]: config,
@@ -39,7 +37,6 @@ export default function CustomizePage() {
   }
 
   const handleLocationChange = (locations: string[]) => {
-    console.log("Locations changed:", locations)
     setSelectedLocations(locations)
 
     // Remove configs for unselected locations
@@ -66,13 +63,6 @@ export default function CustomizePage() {
     selectedLocations,
     logoConfigs,
   }
-
-  console.log("Current state:", {
-    logosCount: logos.length,
-    selectedLocations,
-    logoConfigs,
-    isComplete: isDesignComplete(),
-  })
 
   return (
     <div className="min-h-screen bg-gray-50">
