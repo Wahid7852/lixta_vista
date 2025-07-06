@@ -11,68 +11,68 @@ import { Badge } from "@/components/ui/badge"
 const categories = [
   {
     id: 1,
-    name: "Custom T-Shirts",
+    name: "Custom Apparel",
     href: "/customize",
     image: "/images/categories/tshirts.jpg",
-    description: "Premium quality custom printed T-shirts",
-    price: "Starting ₹299",
+    description: "T-shirts, hoodies, uniforms & more",
+    supplierCount: "500+ Suppliers",
     rating: 4.8,
     badge: "Most Popular",
     color: "from-blue-500 to-purple-600",
   },
   {
     id: 2,
-    name: "Business Cards",
+    name: "Corporate Gifts",
     href: "/customize",
     image: "/images/categories/visiting-cards.jpg",
-    description: "Professional business cards that impress",
-    price: "Starting ₹199",
+    description: "Executive gifts, hampers & branded items",
+    supplierCount: "300+ Suppliers",
     rating: 4.9,
-    badge: "Best Quality",
+    badge: "Premium Quality",
     color: "from-green-500 to-teal-600",
   },
   {
     id: 3,
-    name: "Custom Mugs",
+    name: "Tech Accessories",
     href: "/customize",
     image: "/images/categories/photo-gifts.jpg",
-    description: "Personalized mugs for gifts and promotions",
-    price: "Starting ₹249",
+    description: "Phone cases, power banks & gadgets",
+    supplierCount: "400+ Suppliers",
     rating: 4.7,
-    badge: "Great Gift",
+    badge: "Trending",
     color: "from-orange-500 to-red-600",
   },
   {
     id: 4,
-    name: "Polo T-Shirts",
+    name: "Home & Living",
     href: "/customize",
     image: "/images/categories/polo-tshirts.jpg",
-    description: "Corporate polo shirts with custom branding",
-    price: "Starting ₹399",
+    description: "Mugs, decor, furniture & textiles",
+    supplierCount: "250+ Suppliers",
     rating: 4.8,
-    badge: "Corporate",
+    badge: "Best Value",
     color: "from-purple-500 to-pink-600",
   },
   {
     id: 5,
-    name: "Stationery",
+    name: "Festive Collections",
     href: "/customize",
     image: "/images/categories/stationery.jpg",
-    description: "Custom letterheads and notebooks",
-    price: "Starting ₹149",
+    description: "Seasonal hampers & festival specials",
+    supplierCount: "200+ Suppliers",
     rating: 4.6,
-    badge: "Office Essential",
+    badge: "Seasonal",
     color: "from-indigo-500 to-blue-600",
   },
   {
     id: 6,
-    name: "Signs & Banners",
+    name: "Health & Wellness",
     href: "/customize",
     image: "/images/categories/signs.jpg",
-    description: "Eye-catching signs and promotional banners",
-    price: "Starting ₹499",
+    description: "Fitness gear, supplements & wellness products",
+    supplierCount: "150+ Suppliers",
     rating: 4.7,
-    badge: "Marketing",
+    badge: "Growing",
     color: "from-pink-500 to-rose-600",
   },
 ]
@@ -97,13 +97,13 @@ export default function CategoryShowcase() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4">
-            Our{" "}
+            Popular{" "}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Popular Products
+              Categories
             </span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-            Discover our most loved custom printing solutions with premium quality and fast delivery
+            Discover thousands of suppliers across our most popular customization categories
           </p>
         </div>
 
@@ -163,7 +163,7 @@ export default function CategoryShowcase() {
                     {/* Hover Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
                       <Button size="sm" className="bg-white text-gray-900 hover:bg-gray-100 font-medium">
-                        Customize Now
+                        Browse Suppliers
                         <ArrowRight className="ml-1 h-3 w-3" />
                       </Button>
                     </div>
@@ -179,10 +179,10 @@ export default function CategoryShowcase() {
                       <span
                         className={`text-lg font-bold bg-gradient-to-r ${category.color} bg-clip-text text-transparent`}
                       >
-                        {category.price}
+                        {category.supplierCount}
                       </span>
                       <div className="flex items-center space-x-1 text-gray-500">
-                        <span className="text-xs">MOQ: 100</span>
+                        <span className="text-xs">Verified</span>
                       </div>
                     </div>
                   </CardContent>
@@ -199,8 +199,8 @@ export default function CategoryShowcase() {
             size="lg"
             className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg px-8 py-4 rounded-full font-bold"
           >
-            <Link href="/customize">
-              View All Products
+            <Link href="/categories">
+              Browse All Categories
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>

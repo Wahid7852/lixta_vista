@@ -11,11 +11,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface UserDataPopupProps {
   isOpen: boolean
-  onClose: () => void
   onSubmit: (data: { name: string; email: string }) => void
+  isClosable?: boolean
 }
 
-export default function UserDataPopup({ isOpen, onClose, onSubmit }: UserDataPopupProps) {
+export default function UserDataPopup({ isOpen, onSubmit, isClosable = true }: UserDataPopupProps) {
   const [formData, setFormData] = useState({ name: "", email: "" })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -30,7 +30,6 @@ export default function UserDataPopup({ isOpen, onClose, onSubmit }: UserDataPop
 
     onSubmit(formData)
     setIsSubmitting(false)
-    onClose()
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -47,8 +46,16 @@ export default function UserDataPopup({ isOpen, onClose, onSubmit }: UserDataPop
             <Gift className="h-8 w-8 text-white" />
           </div>
 
-          <CardTitle className="text-2xl font-bold">Welcome to LixtaNetworks!</CardTitle>
-          <p className="text-gray-600 text-sm">Get 15% OFF your first order and join thousands of happy customers</p>
+          <CardTitle className="text-2xl font-bold">Welcome to EaseGiv!</CardTitle>
+          <p className="text-gray-600 text-sm">Get 15% OFF your first order and connect with top suppliers</p>
+
+          {!isClosable && (
+            <div className="bg-orange-50 border border-orange-200 rounded-md p-3 mt-4">
+              <p className="text-orange-800 text-xs font-medium">
+                🎯 Complete this step to access our platform and start customizing
+              </p>
+            </div>
+          )}
         </CardHeader>
 
         <CardContent>
@@ -88,10 +95,10 @@ export default function UserDataPopup({ isOpen, onClose, onSubmit }: UserDataPop
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 text-center">
               <h3 className="font-semibold text-sm mb-2">🎉 What you'll get:</h3>
               <ul className="text-xs text-gray-600 space-y-1">
-                <li>✓ 15% OFF your first order</li>
-                <li>✓ Exclusive design templates</li>
-                <li>✓ Early access to new products</li>
-                <li>✓ Special festival offers</li>
+                <li>✓ 15% OFF your first customization order</li>
+                <li>✓ Access to verified suppliers</li>
+                <li>✓ Priority customer support</li>
+                <li>✓ Exclusive deals and offers</li>
               </ul>
             </div>
 
@@ -101,7 +108,7 @@ export default function UserDataPopup({ isOpen, onClose, onSubmit }: UserDataPop
               disabled={isSubmitting || !formData.name.trim() || !formData.email.trim()}
               size="lg"
             >
-              {isSubmitting ? "Claiming Your Offer..." : "Claim 15% OFF Now"}
+              {isSubmitting ? "Setting Up Your Account..." : "Start Customizing Now"}
             </Button>
           </form>
 
