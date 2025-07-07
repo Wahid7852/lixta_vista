@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import AnimatedBanner from "@/components/animated-banner"
-import HowItWorks from "@/components/how-it-works"
+import CategoryFloaterBanner from "@/components/category-floater-banner"
+import OurCreations from "@/components/our-creations"
+import DemoWalkthrough from "@/components/demo-walkthrough"
 import WhyChooseUs from "@/components/why-choose-us"
 import PromotionBanner from "@/components/promotion-banner"
-import CategoryShowcase from "@/components/category-showcase"
 import TestimonialsSection from "@/components/testimonials-section"
 import UserDataPopup from "@/components/user-data-popup"
 import ReturningUserSection from "@/components/returning-user-section"
@@ -107,14 +107,19 @@ export default function Home() {
         {/* Promotion Banner */}
         <PromotionBanner />
 
+        {/* Category Floater Banner */}
+        <CategoryFloaterBanner />
+
         {/* Conditional Content Based on User Type */}
         {isReturningUser ? (
           <>
             {/* Returning User Personalized Section */}
             <ReturningUserSection user={user} />
 
-            {/* Reduced content for returning users */}
-            <CategoryShowcase />
+            {/* Our Creations for returning users */}
+            <OurCreations />
+
+            {/* Testimonials */}
             <TestimonialsSection />
           </>
         ) : (
@@ -131,11 +136,16 @@ export default function Home() {
               </section>
             )}
 
-            {/* Full content for new/anonymous users */}
-            <AnimatedBanner />
-            <HowItWorks />
-            <CategoryShowcase />
+            {/* Our Creations Section */}
+            <OurCreations />
+
+            {/* Demo Walkthrough */}
+            <DemoWalkthrough />
+
+            {/* Why Choose Us */}
             <WhyChooseUs />
+
+            {/* Testimonials */}
             <TestimonialsSection />
           </>
         )}
@@ -149,17 +159,20 @@ export default function Home() {
           </div>
 
           <div className="relative container mx-auto px-4 text-center">
+            <div className="bg-orange-500 text-white px-6 py-2 rounded-full inline-block mb-6 font-bold">
+              🎯 BULK ORDERS ONLY - MOQ 100+
+            </div>
             <h2 className="text-5xl font-bold mb-6">
-              {isReturningUser ? "Ready for Your Next Project?" : "Ready to Start Customizing?"}
+              {isReturningUser ? "Ready for Your Next Bulk Project?" : "Ready to Start Your Bulk Order?"}
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
               {isReturningUser
-                ? "Continue where you left off or explore new customization possibilities"
-                : "Join thousands of businesses who use EaseGiv to connect with verified suppliers and create custom products"}
+                ? "Continue where you left off or explore new bulk customization possibilities"
+                : "Join thousands of businesses who use EaseGiv for bulk orders and connect with verified suppliers"}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="bg-white text-blue-600 hover:bg-gray-100 font-bold px-8 py-4 text-lg rounded-full shadow-lg hover:shadow-xl transition-all">
-                🚀 Start Customizing
+                🚀 Start Bulk Order
               </button>
               <button className="border-white text-white hover:bg-white hover:text-blue-600 border-2 font-bold px-8 py-4 text-lg rounded-full transition-all">
                 📋 Browse Suppliers

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Search, ShoppingBag, ChevronDown, Menu, Grid3X3 } from "lucide-react"
+import { Search, ShoppingBag, ChevronDown, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
-const categories = [
+const productCategories = [
   {
     name: "Festive & Seasonal",
     icon: "🎁",
@@ -38,11 +38,6 @@ const categories = [
         name: "New Year Specials",
         items: ["Corporate Planners", "New Year Hampers", "Calendar Gifts", "Resolution Kits"],
         href: "/categories/festive/newyear",
-      },
-      {
-        name: "Festival Essentials",
-        items: ["Holi Colors & Kits", "Eid Gift Hampers", "Rakhi Collections", "Karva Chauth Sets"],
-        href: "/categories/festive/essentials",
       },
     ],
   },
@@ -65,11 +60,6 @@ const categories = [
         items: ["Business Hampers", "Corporate Branded Items", "Meeting Gifts", "Thank You Packages"],
         href: "/categories/corporate/client",
       },
-      {
-        name: "Office Supplies",
-        items: ["Branded Stationery", "Custom Notebooks", "Office Decor", "Desk Organizers"],
-        href: "/categories/corporate/office",
-      },
     ],
   },
   {
@@ -85,11 +75,6 @@ const categories = [
         name: "Accessories",
         items: ["Caps & Hats", "Bags & Backpacks", "Scarves & Ties", "Belts & Wallets"],
         href: "/categories/apparel/accessories",
-      },
-      {
-        name: "Footwear",
-        items: ["Custom Shoes", "Slippers", "Sports Shoes", "Formal Footwear"],
-        href: "/categories/apparel/footwear",
       },
       {
         name: "Uniforms",
@@ -113,66 +98,9 @@ const categories = [
         href: "/categories/tech/computer",
       },
       {
-        name: "Audio & Video",
-        items: ["Bluetooth Speakers", "Earphones", "Webcams", "Microphones"],
-        href: "/categories/tech/audio",
-      },
-      {
         name: "Smart Gadgets",
         items: ["Smart Watches", "Fitness Trackers", "Smart Home Devices", "IoT Products"],
         href: "/categories/tech/smart",
-      },
-    ],
-  },
-  {
-    name: "Home & Living",
-    icon: "🏠",
-    subcategories: [
-      {
-        name: "Kitchen & Dining",
-        items: ["Custom Mugs", "Dinner Sets", "Kitchen Appliances", "Cookware"],
-        href: "/categories/home/kitchen",
-      },
-      {
-        name: "Home Decor",
-        items: ["Wall Art", "Photo Frames", "Cushions", "Decorative Items"],
-        href: "/categories/home/decor",
-      },
-      {
-        name: "Furniture",
-        items: ["Office Chairs", "Desks", "Storage Solutions", "Seating"],
-        href: "/categories/home/furniture",
-      },
-      {
-        name: "Textiles",
-        items: ["Bed Sheets", "Curtains", "Towels", "Carpets & Rugs"],
-        href: "/categories/home/textiles",
-      },
-    ],
-  },
-  {
-    name: "Health & Wellness",
-    icon: "💊",
-    subcategories: [
-      {
-        name: "Fitness Equipment",
-        items: ["Yoga Mats", "Resistance Bands", "Dumbbells", "Fitness Trackers"],
-        href: "/categories/health/fitness",
-      },
-      {
-        name: "Personal Care",
-        items: ["Skincare Sets", "Grooming Kits", "Aromatherapy", "Wellness Packages"],
-        href: "/categories/health/personal",
-      },
-      {
-        name: "Nutrition",
-        items: ["Protein Supplements", "Health Drinks", "Organic Foods", "Vitamin Sets"],
-        href: "/categories/health/nutrition",
-      },
-      {
-        name: "Medical Supplies",
-        items: ["First Aid Kits", "Health Monitors", "Mobility Aids", "Safety Equipment"],
-        href: "/categories/health/medical",
       },
     ],
   },
@@ -212,24 +140,32 @@ export default function Navbar({ user, onSignOut }: NavbarProps) {
       } border-b`}
     >
       <div className="container mx-auto px-4">
-        {/* Main Navigation Bar */}
-        <div className="flex items-center justify-between py-3">
-          {/* Left Section - Categories & Logo */}
-          <div className="flex items-center space-x-4">
-            {/* Categories Dropdown - Amazon Style */}
+        {/* Top Navigation Bar */}
+        <div className="flex items-center justify-between py-4">
+          {/* Logo - More Prominent */}
+          <Link href="/" className="flex items-center">
+            <Image src="/logo.svg" alt="EaseGiv" width={200} height={45} className="h-12 w-auto" priority />
+          </Link>
+
+          {/* Main Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link href="/about" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              About Us
+            </Link>
+            <Link href="/why-us" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              Why Us
+            </Link>
+
+            {/* Products Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 border-gray-300"
-                >
-                  <Grid3X3 className="h-4 w-4" />
-                  <span className="hidden md:inline font-medium">All Categories</span>
-                  <ChevronDown className="h-4 w-4" />
+                <Button variant="ghost" className="text-gray-700 hover:text-blue-600 font-medium">
+                  Products
+                  <ChevronDown className="h-4 w-4 ml-1" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-80 max-h-96 overflow-y-auto">
-                {categories.map((category) => (
+              <DropdownMenuContent align="center" className="w-80 max-h-96 overflow-y-auto">
+                {productCategories.map((category) => (
                   <DropdownMenuSub key={category.name}>
                     <DropdownMenuSubTrigger className="flex items-center py-3 px-4 hover:bg-gray-50">
                       <span className="mr-3 text-lg">{category.icon}</span>
@@ -256,39 +192,18 @@ export default function Navbar({ user, onSignOut }: NavbarProps) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link
-                    href="/categories"
+                    href="/products"
                     className="w-full text-center font-medium text-blue-600 hover:text-blue-700 py-3"
                   >
-                    View All Categories →
+                    View All Products →
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            {/* Logo */}
-            <Link href="/" className="flex items-center">
-              <Image src="/logo.svg" alt="EaseGiv" width={180} height={40} className="h-10 w-auto" priority />
-            </Link>
-          </div>
-
-          {/* Center - Search Bar */}
-          <div className="hidden md:flex relative flex-1 max-w-2xl mx-6">
-            <Input
-              type="search"
-              placeholder="Search for products, categories, suppliers..."
-              className="pr-12 h-12 rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-            />
-            <Button
-              size="icon"
-              className="absolute right-0 top-0 h-12 w-12 rounded-r-lg bg-orange-500 hover:bg-orange-600"
-            >
-              <Search className="h-5 w-5 text-white" />
-              <span className="sr-only">Search</span>
-            </Button>
-          </div>
+          </nav>
 
           {/* Right Section - User & Actions */}
-          <nav className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4">
             {/* Help */}
             <div className="hidden lg:block text-right">
               <div className="text-xs text-muted-foreground">Need Help?</div>
@@ -325,9 +240,6 @@ export default function Navbar({ user, onSignOut }: NavbarProps) {
                   <DropdownMenuItem asChild>
                     <Link href="/wishlist">Your Wishlist</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/recommendations">Recommendations</Link>
-                  </DropdownMenuItem>
                   {user.isAdmin && (
                     <>
                       <DropdownMenuSeparator />
@@ -355,16 +267,6 @@ export default function Navbar({ user, onSignOut }: NavbarProps) {
               </div>
             )}
 
-            {/* Returns & Orders */}
-            <Button asChild variant="ghost" size="sm" className="hidden md:flex">
-              <Link href="/orders">
-                <div className="text-left">
-                  <div className="text-xs text-gray-500">Returns</div>
-                  <div className="text-sm font-medium">& Orders</div>
-                </div>
-              </Link>
-            </Button>
-
             {/* Cart */}
             <Button asChild variant="ghost" className="relative">
               <Link href="/cart" className="flex items-center">
@@ -383,45 +285,54 @@ export default function Navbar({ user, onSignOut }: NavbarProps) {
               </SheetTrigger>
               <SheetContent side="right" className="w-80">
                 <div className="flex flex-col space-y-4 mt-6">
-                  <Input placeholder="Search products..." />
-                  {categories.map((category) => (
-                    <div key={category.name} className="space-y-2">
-                      <h3 className="font-semibold flex items-center">
-                        <span className="mr-2">{category.icon}</span>
-                        {category.name}
-                      </h3>
-                      <div className="pl-6 space-y-1">
-                        {category.subcategories.map((sub) => (
-                          <Link
-                            key={sub.name}
-                            href={sub.href}
-                            className="block text-sm text-gray-600 hover:text-blue-600"
-                          >
-                            {sub.name}
-                          </Link>
-                        ))}
+                  <Link href="/about" className="text-lg font-medium">
+                    About Us
+                  </Link>
+                  <Link href="/why-us" className="text-lg font-medium">
+                    Why Us
+                  </Link>
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-lg">Products</h3>
+                    {productCategories.map((category) => (
+                      <div key={category.name} className="space-y-2 pl-4">
+                        <h4 className="font-medium flex items-center">
+                          <span className="mr-2">{category.icon}</span>
+                          {category.name}
+                        </h4>
+                        <div className="pl-6 space-y-1">
+                          {category.subcategories.map((sub) => (
+                            <Link
+                              key={sub.name}
+                              href={sub.href}
+                              className="block text-sm text-gray-600 hover:text-blue-600"
+                            >
+                              {sub.name}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
-          </nav>
+          </div>
         </div>
 
-        {/* Mobile Search */}
-        <div className="md:hidden pb-3">
-          <div className="relative">
+        {/* Search Bar Below Navigation */}
+        <div className="pb-4">
+          <div className="relative max-w-4xl mx-auto">
             <Input
               type="search"
-              placeholder="Search for products, categories..."
-              className="pr-12 h-10 rounded-lg border-2 border-gray-200 w-full"
+              placeholder="Search for products, categories, suppliers... (Bulk Orders Only - MOQ 100+)"
+              className="pr-12 h-12 rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-center md:text-left"
             />
             <Button
               size="icon"
-              className="absolute right-0 top-0 h-10 w-10 rounded-r-lg bg-orange-500 hover:bg-orange-600"
+              className="absolute right-0 top-0 h-12 w-12 rounded-r-lg bg-orange-500 hover:bg-orange-600"
             >
-              <Search className="h-4 w-4 text-white" />
+              <Search className="h-5 w-5 text-white" />
+              <span className="sr-only">Search</span>
             </Button>
           </div>
         </div>

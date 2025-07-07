@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { FileText } from "lucide-react"
+import { FileText, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import RealisticTShirt3D from "@/components/realistic-tshirt-3d"
@@ -11,6 +12,8 @@ import QuotationGenerator from "@/components/quotation-generator"
 import ColorPalette from "@/components/color-palette"
 import MultiLogoUpload from "@/components/multi-logo-upload"
 import SimpleLogoSelector from "@/components/simple-logo-selector"
+import TermsAndConditions from "@/components/terms-and-conditions"
+import SampleRequest from "@/components/sample-request"
 import GoToTop from "@/components/go-to-top"
 
 interface LogoItem {
@@ -30,6 +33,8 @@ export default function CustomizePage() {
   const [selectedLocations, setSelectedLocations] = useState<string[]>([])
   const [logoConfigs, setLogoConfigs] = useState<Record<string, LogoConfig>>({})
   const [showQuotation, setShowQuotation] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [activeTab, setActiveTab] = useState("design")
 
   const handleLogoConfigChange = (locationId: string, config: LogoConfig) => {
     setLogoConfigs((prev) => ({
@@ -59,6 +64,10 @@ export default function CustomizePage() {
     )
   }
 
+  const canProceed = () => {
+    return isDesignComplete() && termsAccepted
+  }
+
   const tshirtConfig = {
     logos,
     productColor,
@@ -77,7 +86,7 @@ export default function CustomizePage() {
             <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Design Your Perfect T-Shirt
             </h1>
-            <p className="text-xl text-gray-600">Simple, visual, and powerful - made for everyone</p>
+            <p className="text-xl text-gray-600">Bulk orders only - MOQ 100 pieces</p>
           </div>
 
           <div className="grid lg:grid-cols-[400px,1fr] gap-8">
@@ -124,29 +133,46 @@ export default function CustomizePage() {
                         {selectedLocations.length}
                       </div>
                     </div>
+
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm font-medium">Terms accepted</span>
+                      <div
+                        className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          termsAccepted ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {termsAccepted ? "✓" : "✗"}
+                      </div>
+                    </div>
                   </div>
 
-                  {isDesignComplete() ? (
+                  {canProceed() ? (
                     <div className="space-y-3">
                       <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-center">
                         <div className="text-2xl mb-2">🎉</div>
-                        <p className="text-green-800 font-semibold">Design Complete!</p>
-                        <p className="text-green-600 text-sm">Ready to get your quote</p>
+                        <p className="text-green-800 font-semibold">Ready to Proceed!</p>
+                        <p className="text-green-600 text-sm">Get your quote or request a sample</p>
                       </div>
-                      <Button
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3"
-                        onClick={() => setShowQuotation(true)}
-                        size="lg"
-                      >
-                        <FileText className="h-5 w-5 mr-2" />
-                        Get My Quote Now
-                      </Button>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold"
+                          onClick={() => setShowQuotation(true)}
+                          size="sm"
+                        >
+                          <FileText className="h-4 w-4 mr-1" />
+                          Get Quote
+                        </Button>
+                        <Button variant="outline" onClick={() => setActiveTab("sample")} size="sm">
+                          <Package className="h-4 w-4 mr-1" />
+                          Sample
+                        </Button>
+                      </div>
                     </div>
                   ) : (
                     <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
                       <div className="text-2xl mb-2">👆</div>
-                      <p className="text-blue-800 font-medium">Follow the steps below</p>
-                      <p className="text-blue-600 text-sm">Upload logos and configure placements</p>
+                      <p className="text-blue-800 font-medium">Complete all steps</p>
+                      <p className="text-blue-600 text-sm">Design, configure, and accept terms</p>
                     </div>
                   )}
                 </CardContent>
@@ -175,14 +201,50 @@ export default function CustomizePage() {
                 </CardContent>
               </Card>
 
-              {/* Simple Logo Selector */}
-              <SimpleLogoSelector
-                logos={logos}
-                selectedLocations={selectedLocations}
-                logoConfigs={logoConfigs}
-                onLocationChange={handleLocationChange}
-                onLogoConfigChange={handleLogoConfigChange}
-              />
+              {/* Tabs for Design, Terms, and Sample */}
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="design">Design & Configure</TabsTrigger>
+                  <TabsTrigger value="terms">Terms & Conditions</TabsTrigger>
+                  <TabsTrigger value="sample">Request Sample</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="design" className="mt-6">
+                  <SimpleLogoSelector
+                    logos={logos}
+                    selectedLocations={selectedLocations}
+                    logoConfigs={logoConfigs}
+                    onLocationChange={handleLocationChange}
+                    onLogoConfigChange={handleLogoConfigChange}
+                  />
+                </TabsContent>
+
+                <TabsContent value="terms" className="mt-6">
+                  <TermsAndConditions onAccept={setTermsAccepted} isRequired={true} />
+                </TabsContent>
+
+                <TabsContent value="sample" className="mt-6">
+                  {isDesignComplete() ? (
+                    <SampleRequest
+                      productType="tshirt"
+                      onRequestSubmit={(data) => {
+                        console.log("Sample request:", data)
+                        // Handle sample request submission
+                      }}
+                    />
+                  ) : (
+                    <Card>
+                      <CardContent className="p-8 text-center">
+                        <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">Complete Your Design First</h3>
+                        <p className="text-gray-600">
+                          Upload logos and configure placements before requesting a sample
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
 
