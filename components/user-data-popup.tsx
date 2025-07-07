@@ -26,7 +26,7 @@ export default function UserDataPopup({ isOpen, onSubmit, isClosable = true }: U
     setIsSubmitting(true)
 
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 10000))
 
     onSubmit(formData)
     setIsSubmitting(false)
