@@ -275,47 +275,6 @@ export default function Navbar({ user, onSignOut }: NavbarProps) {
                 <span className="hidden md:inline ml-2 font-medium">Cart</span>
               </Link>
             </Button>
-
-            {/* Mobile Menu */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-80">
-                <div className="flex flex-col space-y-4 mt-6">
-                  <Link href="/about" className="text-lg font-medium">
-                    About Us
-                  </Link>
-                  <Link href="/why-us" className="text-lg font-medium">
-                    Why Us
-                  </Link>
-                  <div className="space-y-2">
-                    <h3 className="font-semibold text-lg">Products</h3>
-                    {productCategories.map((category) => (
-                      <div key={category.name} className="space-y-2 pl-4">
-                        <h4 className="font-medium flex items-center">
-                          <span className="mr-2">{category.icon}</span>
-                          {category.name}
-                        </h4>
-                        <div className="pl-6 space-y-1">
-                          {category.subcategories.map((sub) => (
-                            <Link
-                              key={sub.name}
-                              href={sub.href}
-                              className="block text-sm text-gray-600 hover:text-blue-600"
-                            >
-                              {sub.name}
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
           </div>
         </div>
 
