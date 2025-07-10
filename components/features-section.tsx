@@ -10,7 +10,7 @@ const features = [
   {
     icon: "/icons/print.svg",
     title: "High-Quality Printing",
-    description: "Premium materials and state-of-the-art printing technology",
+    description: "Premium materials and state-of-the-art technology",
   },
   {
     icon: "/icons/shipping.svg",

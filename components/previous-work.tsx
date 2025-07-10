@@ -207,7 +207,7 @@ export default function PreviousWork() {
       <div className="text-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-8">
         <h3 className="text-2xl font-bold mb-4">Ready to Create Something Amazing?</h3>
         <p className="text-gray-600 mb-6">
-          Let's work together to bring your vision to life with our premium printing solutions
+          Let's work together to bring your vision to life with our premium partners
         </p>
         <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
           Start Your Project

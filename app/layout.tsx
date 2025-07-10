@@ -13,7 +13,7 @@ export default function RootLayout({
         <title>EaseGiv - Premium Printing Solutions</title>
         <meta
           name="description"
-          content="EaseGiv - Your trusted partner for premium printing solutions. Custom business cards, t-shirts, mugs and more."
+          content="EaseGiv - Your trusted partner for bulk creation of custom business cards, t-shirts, mugs and more."
         />
       </head>
       <body>
