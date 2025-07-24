@@ -160,7 +160,7 @@ function RealisticTShirt({ logos, productColor, selectedLocations, logoConfigs }
       </mesh>
 
       {/* Logos based on selected locations */}
-      {selectedLocations.map((locationId) => {
+      {selectedLocations.map((locationId: string) => {
         const location = logoLocations.find((loc) => loc.id === locationId)
         const config = logoConfigs[locationId]
         if (!location || !config) return null

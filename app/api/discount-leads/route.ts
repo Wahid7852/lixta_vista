@@ -1,74 +1,44 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { dbService } from "@/lib/database"
 
-export async function GET() {
-  try {
-    const leads = await dbService.getDiscountLeads()
-    return NextResponse.json({ success: true, leads })
-  } catch (error) {
-    console.error("Error fetching discount leads:", error)
-    return NextResponse.json({ success: false, error: "Failed to fetch discount leads" }, { status: 500 })
-  }
-}
-
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, phone } = await request.json()
+    const body = await request.json()
+    const { name, email } = body
 
-    if (!name || !email || !phone) {
-      return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 })
+    if (!name || !email) {
+      return NextResponse.json({ error: "Name and email are required" }, { status: 400 })
     }
 
-    const discountCode = dbService.generateDiscountCode()
+    // Generate discount code
+    const discountCode = `SAVE15-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
 
-    const result = await dbService.createDiscountLead({
+    // Create discount lead
+    const discountLead = await dbService.createDiscountLead({
       name,
       email,
-      phone,
       discountCode,
+      discountPercentage: 15,
+      isUsed: false,
     })
 
     return NextResponse.json({
       success: true,
-      discountCode,
+      discountCode: discountLead.discountCode,
       message: "Discount code generated successfully!",
-      data: result.lead,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error creating discount lead:", error)
-
-    if (error.message === "Email already exists") {
-      return NextResponse.json(
-        { success: false, error: "This email has already been used to generate a discount code" },
-        { status: 409 },
-      )
-    }
-
-    return NextResponse.json({ success: false, error: "Failed to generate discount code" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to generate discount code" }, { status: 500 })
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get("id")
-
-    if (!id) {
-      return NextResponse.json({ success: false, error: "Lead ID is required" }, { status: 400 })
-    }
-
-    const result = await dbService.deleteDiscountLead(id)
-
-    if (result.success) {
-      return NextResponse.json({
-        success: true,
-        message: "Lead deleted successfully",
-      })
-    } else {
-      return NextResponse.json({ success: false, error: "Lead not found" }, { status: 404 })
-    }
+    const leads = await dbService.getDiscountLeads()
+    return NextResponse.json({ leads })
   } catch (error) {
-    console.error("Error deleting discount lead:", error)
-    return NextResponse.json({ success: false, error: "Failed to delete lead" }, { status: 500 })
+    console.error("Error fetching discount leads:", error)
+    return NextResponse.json({ error: "Failed to fetch discount leads" }, { status: 500 })
   }
 }

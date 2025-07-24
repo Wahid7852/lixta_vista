@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react"
 
-export default function Footer() {
+export function Footer() {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-16">
@@ -148,3 +148,5 @@ export default function Footer() {
     </footer>
   )
 }
+
+export default Footer

@@ -52,36 +52,38 @@ const placementOptions = {
 // Position mappings for different placements
 const getLogoPosition = (placement: string, productType: string) => {
   const positions = {
-    "business-card": {
-      "front-center": { x: 0, y: 0, z: 0.08, side: "front" },
-      "front-top-left": { x: -1.2, y: 0.6, z: 0.08, side: "front" },
-      "front-top-right": { x: 1.2, y: 0.6, z: 0.08, side: "front" },
-      "front-bottom-left": { x: -1.2, y: -0.6, z: 0.08, side: "front" },
-      "front-bottom-right": { x: 1.2, y: -0.6, z: 0.08, side: "front" },
-      "back-center": { x: 0, y: 0, z: -0.08, side: "back" },
-      "back-top-left": { x: 1.2, y: 0.6, z: -0.08, side: "back" },
-      "back-top-right": { x: -1.2, y: 0.6, z: -0.08, side: "back" },
-    },
-    tshirt: {
-      "front-center": { x: 0, y: 0.2, z: 0.12, side: "front" },
-      "front-top-left": { x: -0.3, y: 0.6, z: 0.12, side: "front" },
-      "front-top-right": { x: 0.3, y: 0.6, z: 0.12, side: "front" },
-      "left-sleeve": { x: -0.7, y: 0.5, z: 0.08, side: "front" },
-      "right-sleeve": { x: 0.7, y: 0.5, z: 0.08, side: "front" },
-      "back-center": { x: 0, y: 0.2, z: -0.08, side: "back" },
-      "back-top": { x: 0, y: 0.6, z: -0.08, side: "back" },
-      "back-bottom": { x: 0, y: -0.2, z: -0.08, side: "back" },
-    },
-  }
+    "front-center": { x: 0, y: 0, z: 0, side: "front" },
+    "front-top-left": { x: -0.5, y: 0.5, z: 0, side: "front" },
+    "front-top-right": { x: 0.5, y: 0.5, z: 0, side: "front" },
+    "front-bottom-left": { x: -0.5, y: -0.5, z: 0, side: "front" },
+    "front-bottom-right": { x: 0.5, y: -0.5, z: 0, side: "front" },
+    "back-center": { x: 0, y: 0, z: 0, side: "back" },
+    "back-top-left": { x: -0.5, y: 0.5, z: 0, side: "back" },
+    "back-top-right": { x: 0.5, y: 0.5, z: 0, side: "back" },
+    "back-bottom-left": { x: -0.5, y: -0.5, z: 0, side: "back" },
+    "back-bottom-right": { x: 0.5, y: -0.5, z: 0, side: "back" },
+  } as const;
+  const positionsTshirt = {
+    "front-center": { x: 0, y: 0.2, z: 0.05, side: "front" },
+    "front-top-left": { x: -0.4, y: 0.4, z: 0.05, side: "front" },
+    "front-top-right": { x: 0.4, y: 0.4, z: 0.05, side: "front" },
+    "left-sleeve": { x: -0.6, y: 0.1, z: 0.05, side: "front" },
+    "right-sleeve": { x: 0.6, y: 0.1, z: 0.05, side: "front" },
+    "back-center": { x: 0, y: -0.2, z: 0.05, side: "back" },
+    "back-top": { x: 0, y: -0.1, z: 0.05, side: "back" },
+    "back-bottom": { x: 0, y: -0.3, z: 0.05, side: "back" },
+  } as const;
+
+  const positionKey = `${productType}-${placement}` as keyof typeof positions;
 
   return (
-    positions[productType as keyof typeof positions]?.[placement as keyof (typeof positions)[typeof productType]] || {
+    positions[positionKey] || {
       x: 0,
       y: 0,
       z: 0.08,
       side: "front",
     }
-  )
+  );
 }
 
 // Business Card with proper front/back rendering

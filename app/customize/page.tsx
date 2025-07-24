@@ -5,9 +5,9 @@ import { FileText, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import dynamic from "next/dynamic"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import RealisticTShirt3D from "@/components/realistic-tshirt-3d"
 import QuotationGenerator from "@/components/quotation-generator"
 import ColorPalette from "@/components/color-palette"
 import MultiLogoUpload from "@/components/multi-logo-upload"
@@ -15,6 +15,15 @@ import SimpleLogoSelector from "@/components/simple-logo-selector"
 import TermsAndConditions from "@/components/terms-and-conditions"
 import SampleRequest from "@/components/sample-request"
 import GoToTop from "@/components/go-to-top"
+
+export const fetchCache = "force-no-store";
+
+const RealisticTshirt3D = dynamic(
+  () => import("@/components/realistic-tshirt-3d"),
+  {
+    ssr: false,
+  }
+);
 
 interface LogoItem {
   id: string
@@ -25,6 +34,7 @@ interface LogoItem {
 interface LogoConfig {
   logoId: string
   size: number
+  rotation: number
 }
 
 export default function CustomizePage() {
@@ -191,7 +201,7 @@ export default function CustomizePage() {
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="aspect-square">
-                    <RealisticTShirt3D
+                    <RealisticTshirt3D
                       logos={logos}
                       productColor={productColor}
                       selectedLocations={selectedLocations}

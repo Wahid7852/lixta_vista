@@ -4,166 +4,194 @@ import { dbService } from "@/lib/database"
 
 const ADMIN_EMAILS = ["wahidzk0091@gmail.com", "admin@easegiv.com"]
 
-export async function GET(request: NextRequest) {
+async function checkAdminAccess() {
+  const { userId } = await auth()
+
+  if (!userId) {
+    throw new Error("Unauthorized")
+  }
+
+  const { clerkClient } = await import("@clerk/nextjs/server")
+
+  const client = await clerkClient();
+  const user = await client.users.getUser(userId);
+
+  const userEmail = user.emailAddresses[0]?.emailAddress
+
+  if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
+    throw new Error("Admin access required")
+  }
+
+  return user
+}
+
+export async function GET() {
   try {
-    const { userId } = await auth()
-
-    if (!userId) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
-    }
-
-    // Get user from database to check admin status
-    const user = await dbService.getUserByClerkId(userId)
-
-    if (!user || !ADMIN_EMAILS.includes(user.email)) {
-      return NextResponse.json({ success: false, error: "Admin access required" }, { status: 403 })
-    }
-
-    const { searchParams } = new URL(request.url)
-    const limit = Number.parseInt(searchParams.get("limit") || "50")
-    const skip = Number.parseInt(searchParams.get("skip") || "0")
-
-    const result = await dbService.getProducts(limit, skip)
-
-    return NextResponse.json({
-      success: true,
-      data: result.products,
-      total: result.total,
-      page: Math.floor(skip / limit) + 1,
-      totalPages: Math.ceil(result.total / limit),
-    })
+    await checkAdminAccess()
+    const products = await dbService.getProducts()
+    return NextResponse.json({ products })
   } catch (error) {
     console.error("Error fetching products:", error)
-    return NextResponse.json({ success: false, error: "Failed to fetch products" }, { status: 500 })
+    if (error instanceof Error) {
+      if (error.message === "Unauthorized") {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      }
+      if (error.message === "Admin access required") {
+        return NextResponse.json({ error: "Admin access required" }, { status: 403 })
+      }
+    }
+    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth()
+    await checkAdminAccess()
 
-    if (!userId) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+    const body = await request.json()
+    const { action } = body
+
+    if (action === "create_mockup") {
+      const products = await dbService.createMockupProducts()
+      return NextResponse.json({
+        success: true,
+        message: `Created ${products.length} mockup products`,
+        products,
+      })
     }
 
-    // Get user from database to check admin status
-    const user = await dbService.getUserByClerkId(userId)
+    // Regular product creation
+    const {
+      name,
+      category,
+      subcategory,
+      description,
+      price,
+      costPrice,
+      images,
+      templates,
+      customizationOptions,
+      minOrderQuantity,
+      status,
+    } = body
 
-    if (!user || !ADMIN_EMAILS.includes(user.email)) {
-      return NextResponse.json({ success: false, error: "Admin access required" }, { status: 403 })
+    if (!name || !category || !price || !costPrice) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const productData = await request.json()
+    const margin = price - costPrice
 
-    // Generate productId and SKU
-    const productId = `PROD-${Date.now().toString().slice(-6)}`
-    const sku = `${productData.category.substring(0, 3).toUpperCase()}-${Date.now().toString().slice(-6)}`
-
-    const newProduct = {
-      productId,
-      name: productData.name,
-      slug: productData.name.toLowerCase().replace(/\s+/g, "-"),
-      description: productData.description,
-      category: productData.category,
-      subcategory: productData.subcategory,
-      sku,
-      price: Number.parseFloat(productData.price),
-      costPrice: Number.parseFloat(productData.costPrice),
-      margin: Number.parseFloat(productData.price) - Number.parseFloat(productData.costPrice),
-      stockQuantity: Number.parseInt(productData.stockQuantity),
-      minOrderQuantity: Number.parseInt(productData.minOrderQuantity),
-      status: "Active" as const,
-      supplier: productData.supplier,
-      colors: productData.colors || [],
-      sizes: productData.sizes || [],
-      customizationOptions: productData.customizationOptions || {},
-      images: productData.images || [],
-      totalOrders: 0,
-      totalRevenue: 0,
-    }
-
-    const result = await dbService.createProduct(newProduct)
-
-    return NextResponse.json({
-      success: true,
-      data: result.product,
-      message: "Product created successfully",
+    const product = await dbService.createProduct({
+      name,
+      category,
+      subcategory: subcategory || "",
+      description: description || "",
+      price: Number.parseFloat(price),
+      costPrice: Number.parseFloat(costPrice),
+      margin,
+      images: images || [],
+      templates: templates || [],
+      customizationOptions: customizationOptions || {
+        colors: [],
+        sizes: [],
+        materials: [],
+      },
+      minOrderQuantity: Number.parseInt(minOrderQuantity) || 25,
+      status: status || "active",
     })
+
+    return NextResponse.json({ success: true, product })
   } catch (error) {
     console.error("Error creating product:", error)
-    return NextResponse.json({ success: false, error: "Failed to create product" }, { status: 500 })
+    if (error instanceof Error) {
+      if (error.message === "Unauthorized") {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      }
+      if (error.message === "Admin access required") {
+        return NextResponse.json({ error: "Admin access required" }, { status: 403 })
+      }
+    }
+    return NextResponse.json({ error: "Failed to create product" }, { status: 500 })
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
-    const { userId } = await auth()
+    await checkAdminAccess()
 
-    if (!userId) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+    const body = await request.json()
+    const { productId, ...updates } = body
+
+    if (!productId) {
+      return NextResponse.json({ error: "Product ID is required" }, { status: 400 })
     }
 
-    // Get user from database to check admin status
-    const user = await dbService.getUserByClerkId(userId)
-
-    if (!user || !ADMIN_EMAILS.includes(user.email)) {
-      return NextResponse.json({ success: false, error: "Admin access required" }, { status: 403 })
-    }
-
-    const { productId, ...updates } = await request.json()
-
-    // Recalculate margin if price or cost price changed
-    if (updates.price || updates.costPrice) {
+    // Calculate margin if price or costPrice is being updated
+    if (updates.price !== undefined || updates.costPrice !== undefined) {
       const product = await dbService.getProductById(productId)
       if (product) {
-        const price = updates.price || product.price
-        const costPrice = updates.costPrice || product.costPrice
+        const price = updates.price !== undefined ? Number.parseFloat(updates.price) : product.price
+        const costPrice = updates.costPrice !== undefined ? Number.parseFloat(updates.costPrice) : product.costPrice
         updates.margin = price - costPrice
+
+        if (updates.price !== undefined) {
+          updates.price = Number.parseFloat(updates.price)
+        }
+        if (updates.costPrice !== undefined) {
+          updates.costPrice = Number.parseFloat(updates.costPrice)
+        }
       }
     }
 
-    const result = await dbService.updateProduct(productId, updates)
+    const updatedProduct = await dbService.updateProduct(productId, updates)
 
-    return NextResponse.json({
-      success: true,
-      message: "Product updated successfully",
-    })
+    if (!updatedProduct) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 })
+    }
+
+    return NextResponse.json({ success: true, product: updatedProduct })
   } catch (error) {
     console.error("Error updating product:", error)
-    return NextResponse.json({ success: false, error: "Failed to update product" }, { status: 500 })
+    if (error instanceof Error) {
+      if (error.message === "Unauthorized") {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      }
+      if (error.message === "Admin access required") {
+        return NextResponse.json({ error: "Admin access required" }, { status: 403 })
+      }
+    }
+    return NextResponse.json({ error: "Failed to update product" }, { status: 500 })
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { userId } = await auth()
-
-    if (!userId) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
-    }
-
-    // Get user from database to check admin status
-    const user = await dbService.getUserByClerkId(userId)
-
-    if (!user || !ADMIN_EMAILS.includes(user.email)) {
-      return NextResponse.json({ success: false, error: "Admin access required" }, { status: 403 })
-    }
+    await checkAdminAccess()
 
     const { searchParams } = new URL(request.url)
-    const productId = searchParams.get("productId")
+    const productId = searchParams.get("id")
 
     if (!productId) {
-      return NextResponse.json({ success: false, error: "Product ID is required" }, { status: 400 })
+      return NextResponse.json({ error: "Product ID is required" }, { status: 400 })
     }
 
-    const result = await dbService.deleteProduct(productId)
+    const deleted = await dbService.deleteProduct(productId)
 
-    return NextResponse.json({
-      success: true,
-      message: "Product deleted successfully",
-    })
+    if (!deleted) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 })
+    }
+
+    return NextResponse.json({ success: true, message: "Product deleted successfully" })
   } catch (error) {
     console.error("Error deleting product:", error)
-    return NextResponse.json({ success: false, error: "Failed to delete product" }, { status: 500 })
+    if (error instanceof Error) {
+      if (error.message === "Unauthorized") {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      }
+      if (error.message === "Admin access required") {
+        return NextResponse.json({ error: "Admin access required" }, { status: 403 })
+      }
+    }
+    return NextResponse.json({ error: "Failed to delete product" }, { status: 500 })
   }
 }
