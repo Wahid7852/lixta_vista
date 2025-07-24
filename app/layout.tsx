@@ -1,6 +1,18 @@
 import type React from "react"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import { ClerkProvider } from "@clerk/nextjs"
+import { Toaster } from "@/components/ui/toaster"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
+
+const inter = Inter({ subsets: ["latin"] })
+
+export const metadata: Metadata = {
+  title: "EaseGiv - Premium B2B Customization Platform",
+  description:
+    "India's leading B2B customization platform connecting businesses with verified suppliers for bulk promotional products.",
+    generator: 'v0.dev'
+}
 
 export default function RootLayout({
   children,
@@ -8,23 +20,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <head>
-        <title>EaseGiv - Premium Printing Solutions</title>
-        <meta
-          name="description"
-          content="EaseGiv - Your trusted partner for bulk creation of custom business cards, t-shirts, mugs and more."
-        />
-      </head>
-      <body>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={inter.className}>
           {children}
-        </ThemeProvider>
-      </body>
-    </html>
+          <Toaster />
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }
-
-export const metadata = {
-      generator: 'v0.dev'
-    };

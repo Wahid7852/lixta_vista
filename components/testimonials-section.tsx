@@ -33,7 +33,7 @@ export default function TestimonialsSection() {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">What Our Customers Say</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Join thousands of satisfied customers who trust us with their needs
+            Join thousands of satisfied customers who trust us with their printing needs
           </p>
         </div>
 

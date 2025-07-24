@@ -1,298 +1,365 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
 import Link from "next/link"
-import { Search, ShoppingBag, ChevronDown, Menu } from "lucide-react"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-} from "@/components/ui/dropdown-menu"
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import {
+  Search,
+  ShoppingCart,
+  Menu,
+  Package,
+  Shirt,
+  FileText,
+  Gift,
+  Briefcase,
+  Shield,
+  Phone,
+  Mail,
+} from "lucide-react"
+import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs"
 
-const productCategories = [
+const categories = [
   {
-    name: "Festive & Seasonal",
-    icon: "🎁",
-    subcategories: [
-      {
-        name: "Diwali Collection",
-        items: ["Diwali Hampers", "Corporate Diwali Gifts", "Diwali Sweets & Dry Fruits", "Diwali Decoratives"],
-        href: "/categories/festive/diwali",
-      },
-      {
-        name: "Christmas Collection",
-        items: ["Christmas Hampers", "Holiday Gift Sets", "Christmas Decorations", "Festive Treats"],
-        href: "/categories/festive/christmas",
-      },
-      {
-        name: "New Year Specials",
-        items: ["Corporate Planners", "New Year Hampers", "Calendar Gifts", "Resolution Kits"],
-        href: "/categories/festive/newyear",
-      },
-    ],
+    name: "Business Cards & Stationery",
+    icon: <Briefcase className="h-4 w-4" />,
+    subcategories: ["Business Cards", "Letterheads", "Envelopes", "Notepads", "Folders", "Stamps"],
   },
   {
-    name: "Corporate & Business",
-    icon: "💼",
-    subcategories: [
-      {
-        name: "Executive Gifts",
-        items: ["Pen Sets", "Diary & Planner Combos", "Premium Gift Sets", "Desk Accessories"],
-        href: "/categories/corporate/executive",
-      },
-      {
-        name: "Employee Essentials",
-        items: ["Welcome Kits", "Work from Home Sets", "Team Building Gifts", "Recognition Awards"],
-        href: "/categories/corporate/employee",
-      },
-      {
-        name: "Client Gifting",
-        items: ["Business Hampers", "Corporate Branded Items", "Meeting Gifts", "Thank You Packages"],
-        href: "/categories/corporate/client",
-      },
-    ],
+    name: "Apparel & Clothing",
+    icon: <Shirt className="h-4 w-4" />,
+    subcategories: ["T-Shirts", "Polo Shirts", "Hoodies", "Caps & Hats", "Uniforms", "Aprons"],
   },
   {
-    name: "Apparel & Accessories",
-    icon: "👕",
-    subcategories: [
-      {
-        name: "Custom Clothing",
-        items: ["T-Shirts & Polos", "Hoodies & Sweatshirts", "Formal Shirts", "Jackets & Outerwear"],
-        href: "/categories/apparel/clothing",
-      },
-      {
-        name: "Accessories",
-        items: ["Caps & Hats", "Bags & Backpacks", "Scarves & Ties", "Belts & Wallets"],
-        href: "/categories/apparel/accessories",
-      },
-      {
-        name: "Uniforms",
-        items: ["Corporate Uniforms", "School Uniforms", "Sports Uniforms", "Industrial Wear"],
-        href: "/categories/apparel/uniforms",
-      },
-    ],
+    name: "Promotional Products",
+    icon: <Gift className="h-4 w-4" />,
+    subcategories: ["Mugs & Drinkware", "Bags & Totes", "Tech Accessories", "Desk Items", "Keychains", "USB Drives"],
   },
   {
-    name: "Tech & Electronics",
-    icon: "📱",
-    subcategories: [
-      {
-        name: "Mobile Accessories",
-        items: ["Phone Cases", "Power Banks", "Wireless Chargers", "Phone Stands"],
-        href: "/categories/tech/mobile",
-      },
-      {
-        name: "Computer Accessories",
-        items: ["Mouse Pads", "USB Drives", "Laptop Sleeves", "Keyboard Accessories"],
-        href: "/categories/tech/computer",
-      },
-      {
-        name: "Smart Gadgets",
-        items: ["Smart Watches", "Fitness Trackers", "Smart Home Devices", "IoT Products"],
-        href: "/categories/tech/smart",
-      },
-    ],
+    name: "Marketing Materials",
+    icon: <FileText className="h-4 w-4" />,
+    subcategories: ["Brochures", "Flyers", "Posters", "Banners", "Signs", "Labels"],
+  },
+  {
+    name: "Photo Gifts",
+    icon: <Package className="h-4 w-4" />,
+    subcategories: ["Photo Books", "Canvas Prints", "Photo Mugs", "Calendars", "Photo Frames", "Magnets"],
   },
 ]
 
-interface NavbarProps {
-  user?: {
-    name: string
-    email: string
-    avatar?: string
-    isAdmin?: boolean
-  } | null
-  onSignOut?: () => void
-}
+const ADMIN_EMAILS = ["wahidzk0091@gmail.com", "admin@easegiv.com"]
 
-export default function Navbar({ user, onSignOut }: NavbarProps) {
-  const [isScrolled, setIsScrolled] = useState(false)
+export default function Navbar() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [cartItems, setCartItems] = useState(0)
+  const { isSignedIn, user } = useUser()
+  const pathname = usePathname()
+
+  const isAdmin =
+    isSignedIn && user?.emailAddresses?.[0]?.emailAddress && ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
+    // Check cart items from localStorage
+    const cart = localStorage.getItem("cart")
+    if (cart) {
+      const cartData = JSON.parse(cart)
+      setCartItems(cartData.length || 0)
     }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  const handleSignOut = () => {
-    if (onSignOut) {
-      onSignOut()
-    }
-  }
-
   return (
-    <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-white/95 backdrop-blur-md shadow-lg" : "bg-white"
-      } border-b`}
-    >
+    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+      {/* Top Banner */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-2 text-sm">
+        <div className="container mx-auto px-4 flex items-center justify-between">
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2">
+              <Phone className="h-3 w-3" />
+              <span>+91-80-1234-5678</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Mail className="h-3 w-3" />
+              <span>support@easegiv.com</span>
+            </div>
+          </div>
+          <span className="font-medium">🎉 Bulk Orders Only - MOQ 100 pieces | Free Design Consultation</span>
+        </div>
+      </div>
+
       <div className="container mx-auto px-4">
-        {/* Top Navigation Bar */}
-        <div className="flex items-center justify-between py-4">
-          {/* Logo - More Prominent */}
-          <Link href="/" className="flex items-center">
-            <Image src="/logo.svg" alt="EaseGiv" width={200} height={45} className="h-12 w-auto" priority />
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="h-8 w-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">EG</span>
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              EaseGiv
+            </span>
           </Link>
 
-          {/* Main Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/about" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-              About Us
-            </Link>
-            <Link href="/why-us" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-              Why Us
-            </Link>
-
-            {/* Products Dropdown */}
+          {/* Categories Dropdown - Desktop */}
+          <div className="hidden lg:flex">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="text-gray-700 hover:text-blue-600 font-medium">
-                  Products
-                  <ChevronDown className="h-4 w-4 ml-1" />
+                <Button variant="outline" className="flex items-center space-x-2 bg-transparent">
+                  <Menu className="h-4 w-4" />
+                  <span>All Categories</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="w-80 max-h-96 overflow-y-auto">
-                {productCategories.map((category) => (
-                  <DropdownMenuSub key={category.name}>
-                    <DropdownMenuSubTrigger className="flex items-center py-3 px-4 hover:bg-gray-50">
-                      <span className="mr-3 text-lg">{category.icon}</span>
-                      <span className="font-medium">{category.name}</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent className="w-96 max-h-80 overflow-y-auto">
-                      {category.subcategories.map((sub) => (
-                        <div key={sub.name} className="p-3 hover:bg-gray-50">
-                          <Link href={sub.href} className="block">
-                            <div className="font-semibold text-sm text-gray-900 mb-2">{sub.name}</div>
-                            <div className="grid grid-cols-2 gap-1">
-                              {sub.items.map((item) => (
-                                <div key={item} className="text-xs text-gray-600 hover:text-blue-600 py-1">
-                                  {item}
-                                </div>
-                              ))}
-                            </div>
-                          </Link>
+              <DropdownMenuContent className="w-80" align="start">
+                {categories.map((category) => (
+                  <DropdownMenuItem key={category.name} className="p-0">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="w-full p-3 flex items-center justify-between hover:bg-gray-50">
+                        <div className="flex items-center space-x-2">
+                          {category.icon}
+                          <span>{category.name}</span>
                         </div>
-                      ))}
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent side="right" className="w-48">
+                        {category.subcategories.map((sub) => (
+                          <DropdownMenuItem key={sub} asChild>
+                            <Link href={`/products/${sub.toLowerCase().replace(/\s+/g, "-")}`} className="w-full">
+                              {sub}
+                            </Link>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </DropdownMenuItem>
                 ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/products"
-                    className="w-full text-center font-medium text-blue-600 hover:text-blue-700 py-3"
-                  >
-                    View All Products →
-                  </Link>
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </nav>
+          </div>
 
-          {/* Right Section - User & Actions */}
+          {/* Navigation Menu - Desktop */}
+          <NavigationMenu className="hidden lg:flex">
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <Link href="/about" legacyBehavior passHref>
+                  <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
+                    About Us
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid w-[600px] grid-cols-2 gap-3 p-4">
+                    {categories.slice(0, 4).map((category) => (
+                      <div key={category.name} className="space-y-2">
+                        <h4 className="text-sm font-medium leading-none flex items-center space-x-2">
+                          {category.icon}
+                          <span>{category.name}</span>
+                        </h4>
+                        <div className="grid gap-1">
+                          {category.subcategories.slice(0, 3).map((sub) => (
+                            <Link
+                              key={sub}
+                              href={`/products/${sub.toLowerCase().replace(/\s+/g, "-")}`}
+                              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              {sub}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <Link href="/why-us" legacyBehavior passHref>
+                  <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
+                    Why Us
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <Link href="/customize" legacyBehavior passHref>
+                  <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 text-sm font-medium transition-colors hover:from-blue-700 hover:to-purple-700">
+                    Start Customizing
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+
+          {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            {/* Help */}
-            <div className="hidden lg:block text-right">
-              <div className="text-xs text-muted-foreground">Need Help?</div>
-              <div className="text-xs font-medium text-blue-600">+91-80-1234-5678</div>
+            {/* Search - Desktop */}
+            <div className="hidden md:flex relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input type="search" placeholder="Search products..." className="pl-10 w-64" />
             </div>
 
-            {/* User Menu */}
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                      {user.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="hidden md:block text-left">
-                      <div className="text-xs text-gray-500">Hello,</div>
-                      <div className="text-sm font-medium">{user.name}</div>
-                    </div>
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-3 py-2">
-                    <p className="text-sm font-medium">{user.name}</p>
-                    <p className="text-xs text-gray-500">{user.email}</p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard">Your Account</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/orders">Your Orders</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/wishlist">Your Wishlist</Link>
-                  </DropdownMenuItem>
-                  {user.isAdmin && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href="/admin" className="text-blue-600 font-medium">
-                          Admin Panel
-                        </Link>
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+            {/* Cart */}
+            <Button variant="outline" size="sm" className="relative bg-transparent" asChild>
+              <Link href="/cart">
+                <ShoppingCart className="h-4 w-4" />
+                {cartItems > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                    {cartItems}
+                  </Badge>
+                )}
+              </Link>
+            </Button>
+
+            {/* Admin Panel Button - Only for Admin */}
+            {isAdmin && (
+              <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+                <Link href="/admin" className="flex items-center space-x-2">
+                  <Shield className="h-4 w-4" />
+                  <span className="hidden sm:inline">Admin Panel</span>
+                </Link>
+              </Button>
+            )}
+
+            {/* User Authentication */}
+            {isSignedIn ? (
+              <div className="flex items-center space-x-3">
+                <UserButton
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-10 h-10",
+                    },
+                  }}
+                />
+                <div className="hidden md:block">
+                  <p className="text-sm font-medium text-gray-900 flex items-center space-x-2">
+                    <span>
+                      {user?.firstName} {user?.lastName}
+                    </span>
+                    {isAdmin && (
+                      <Badge variant="destructive" className="text-xs">
+                        Admin
+                      </Badge>
+                    )}
+                  </p>
+                  <p className="text-xs text-gray-500">{user?.emailAddresses[0]?.emailAddress}</p>
+                </div>
+              </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <Button asChild variant="ghost" size="sm">
-                  <Link href="/signin">
-                    <div className="text-left">
-                      <div className="text-xs text-gray-500">Hello, sign in</div>
-                      <div className="text-sm font-medium">Account & Lists</div>
-                    </div>
-                  </Link>
-                </Button>
+                <SignInButton mode="modal">
+                  <Button variant="ghost" size="sm">
+                    Sign In
+                  </Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                    Sign Up
+                  </Button>
+                </SignUpButton>
               </div>
             )}
 
-            {/* Cart */}
-            <Button asChild variant="ghost" className="relative">
-              <Link href="/cart" className="flex items-center">
-                <ShoppingBag className="h-6 w-6" />
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs bg-orange-500">2</Badge>
-                <span className="hidden md:inline ml-2 font-medium">Cart</span>
-              </Link>
-            </Button>
+            {/* Mobile Menu */}
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild className="lg:hidden">
+                <Button variant="outline" size="sm">
+                  <Menu className="h-4 w-4" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80">
+                <div className="flex flex-col space-y-4 mt-8">
+                  {/* Search - Mobile */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input type="search" placeholder="Search products..." className="pl-10" />
+                  </div>
+
+                  {/* Navigation Links */}
+                  <div className="space-y-2">
+                    <Link
+                      href="/about"
+                      className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      About Us
+                    </Link>
+                    <Link
+                      href="/why-us"
+                      className="block px-3 py-2 rounded-md hover:bg-gray-100"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Why Us
+                    </Link>
+                    <Link
+                      href="/customize"
+                      className="block px-3 py-2 rounded-md bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Start Customizing
+                    </Link>
+                  </div>
+
+                  {/* Categories */}
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-sm text-gray-500 uppercase tracking-wide">Categories</h3>
+                    {categories.map((category) => (
+                      <div key={category.name} className="space-y-1">
+                        <div className="flex items-center space-x-2 px-3 py-2 font-medium">
+                          {category.icon}
+                          <span>{category.name}</span>
+                        </div>
+                        <div className="pl-6 space-y-1">
+                          {category.subcategories.map((sub) => (
+                            <Link
+                              key={sub}
+                              href={`/products/${sub.toLowerCase().replace(/\s+/g, "-")}`}
+                              className="block px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              {sub}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Admin Panel - Mobile */}
+                  {isAdmin && (
+                    <div className="pt-4 border-t">
+                      <Link
+                        href="/admin"
+                        className="flex items-center space-x-2 px-3 py-2 bg-red-600 text-white rounded-md"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <Shield className="h-4 w-4" />
+                        <span>Admin Panel</span>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
 
-        {/* Search Bar Below Navigation */}
-        <div className="pb-4">
-          <div className="relative max-w-4xl mx-auto">
-            <Input
-              type="search"
-              placeholder="Search for products, categories, suppliers... (Bulk Orders Only - MOQ 100+)"
-              className="pr-12 h-12 rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-center md:text-left"
-            />
-            <Button
-              size="icon"
-              className="absolute right-0 top-0 h-12 w-12 rounded-r-lg bg-orange-500 hover:bg-orange-600"
-            >
-              <Search className="h-5 w-5 text-white" />
-              <span className="sr-only">Search</span>
-            </Button>
+        {/* Search Bar - Below Navigation */}
+        <div className="pb-4 md:hidden">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input type="search" placeholder="Search products..." className="pl-10 w-full" />
           </div>
         </div>
       </div>

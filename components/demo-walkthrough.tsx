@@ -1,162 +1,317 @@
 "use client"
 
 import { useState } from "react"
-import { Play, X, Monitor, Smartphone, Users, Zap } from "lucide-react"
+import {
+  Play,
+  Pause,
+  Volume2,
+  Maximize,
+  RotateCcw,
+  CheckCircle,
+  ArrowRight,
+  Users,
+  Palette,
+  Package,
+  Truck,
+} from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 
-const demoFeatures = [
+interface DemoWalkthroughProps {
+  darkMode?: boolean
+}
+
+const demoSteps = [
   {
-    icon: <Monitor className="h-8 w-8" />,
-    title: "Easy Design Interface",
-    description: "Intuitive drag-and-drop customization tools",
+    id: 1,
+    title: "Share Your Requirements",
+    description: "Tell us about your product needs, quantity, and timeline",
+    icon: <Users className="h-6 w-6" />,
+    duration: "2 minutes",
     color: "from-blue-500 to-purple-500",
   },
   {
-    icon: <Users className="h-8 w-8" />,
-    title: "Supplier Network",
-    description: "Connect with 2000+ verified suppliers",
+    id: 2,
+    title: "Get Custom Design & Quote",
+    description: "Receive professional designs and transparent pricing within 24 hours",
+    icon: <Palette className="h-6 w-6" />,
+    duration: "24 hours",
+    color: "from-purple-500 to-pink-500",
+  },
+  {
+    id: 3,
+    title: "Approve Sample",
+    description: "Review physical samples and approve before bulk production",
+    icon: <Package className="h-6 w-6" />,
+    duration: "3-5 days",
     color: "from-green-500 to-teal-500",
   },
   {
-    icon: <Smartphone className="h-8 w-8" />,
-    title: "Real-time Preview",
-    description: "See your designs come to life instantly",
+    id: 4,
+    title: "Production & Delivery",
+    description: "Quality manufacturing and timely delivery to your location",
+    icon: <Truck className="h-6 w-6" />,
+    duration: "7-14 days",
     color: "from-orange-500 to-red-500",
-  },
-  {
-    icon: <Zap className="h-8 w-8" />,
-    title: "Quick Quotes",
-    description: "Get instant pricing for bulk orders",
-    color: "from-purple-500 to-pink-500",
   },
 ]
 
-export default function DemoWalkthrough() {
-  const [showVideo, setShowVideo] = useState(false)
+const platformFeatures = [
+  {
+    title: "Real-time Design Preview",
+    description: "See your designs come to life with our 3D preview technology",
+    completed: true,
+  },
+  {
+    title: "Verified Supplier Network",
+    description: "Access to 2000+ verified suppliers across India",
+    completed: true,
+  },
+  {
+    title: "Quality Assurance",
+    description: "Rigorous quality checks and satisfaction guarantee",
+    completed: true,
+  },
+  {
+    title: "Bulk Order Management",
+    description: "Streamlined process for large quantity orders",
+    completed: true,
+  },
+  {
+    title: "End-to-end Support",
+    description: "Dedicated account managers for seamless execution",
+    completed: true,
+  },
+]
+
+export default function DemoWalkthrough({ darkMode = false }: DemoWalkthroughProps) {
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentStep, setCurrentStep] = useState(1)
+  const [progress, setProgress] = useState(0)
+
+  const handlePlayPause = () => {
+    setIsPlaying(!isPlaying)
+    // In a real implementation, this would control video playback
+  }
+
+  const handleStepClick = (stepId: number) => {
+    setCurrentStep(stepId)
+    setProgress((stepId - 1) * 25)
+  }
 
   return (
-    <section className="py-20 bg-white">
+    <section className={`py-20 ${darkMode ? "bg-gray-900" : "bg-gradient-to-br from-blue-50 to-purple-50"}`}>
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
-          <Badge className="bg-green-100 text-green-800 px-4 py-2 text-sm font-bold mb-4">
-            <Play className="h-4 w-4 mr-2" />
+          <Badge
+            className={`${darkMode ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-800"} px-4 py-2 text-sm font-bold mb-4`}
+          >
             Platform Demo
           </Badge>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            See EaseGiv in{" "}
-            <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">Action</span>
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Watch how businesses use our platform to connect with suppliers and create amazing custom products
-          </p>
-
-          {/* Demo Video Thumbnail */}
-          <div className="relative max-w-4xl mx-auto mb-12">
-            <div
-              className="relative bg-gradient-to-br from-gray-800 to-blue-900 rounded-2xl overflow-hidden cursor-pointer group"
-              onClick={() => setShowVideo(true)}
+          <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${darkMode ? "text-white" : ""}`}>
+            See How{" "}
+            <span
+              className={`bg-gradient-to-r ${darkMode ? "from-blue-400 to-purple-400" : "from-blue-600 to-purple-600"} bg-clip-text text-transparent`}
             >
-              <div className="aspect-video flex items-center justify-center">
-                <div className="text-center text-white">
-                  <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-white/30 transition-colors">
-                    <Play className="h-10 w-10 ml-1" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-2">Platform Walkthrough</h3>
-                  <p className="text-blue-200">See how easy it is to customize and order</p>
-                </div>
-              </div>
-
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-
-              {/* Play Button */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Button
-                  size="lg"
-                  className="bg-white/20 hover:bg-white/30 border-white/30 text-white backdrop-blur-sm"
-                  variant="outline"
-                >
-                  <Play className="h-6 w-6 mr-2" />
-                  Watch Demo (3:45)
-                </Button>
-              </div>
-            </div>
-          </div>
+              EaseGiv Works
+            </span>
+          </h2>
+          <p className={`text-xl ${darkMode ? "text-gray-300" : "text-gray-600"} max-w-3xl mx-auto`}>
+            Watch our interactive demo to understand how we make bulk customization simple and efficient for businesses
+          </p>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {demoFeatures.map((feature, index) => (
-            <Card
-              key={index}
-              className="text-center p-6 hover:shadow-lg transition-shadow border-0 bg-gradient-to-br from-gray-50 to-white"
-            >
-              <CardContent className="pt-6">
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          {/* Video Demo Section */}
+          <div className="space-y-6">
+            {/* Video Player Mockup */}
+            <Card className={`${darkMode ? "bg-gray-800 border-gray-700" : "bg-white"} shadow-2xl overflow-hidden`}>
+              <div className="relative">
+                {/* Video Placeholder */}
                 <div
-                  className={`w-16 h-16 mx-auto mb-4 bg-gradient-to-r ${feature.color} rounded-xl flex items-center justify-center text-white`}
+                  className={`aspect-video ${darkMode ? "bg-gray-700" : "bg-gray-900"} flex items-center justify-center relative`}
                 >
-                  {feature.icon}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20"></div>
+
+                  {/* Play Button */}
+                  <Button
+                    size="lg"
+                    onClick={handlePlayPause}
+                    className="relative z-10 w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 border-2 border-white/50"
+                  >
+                    {isPlaying ? (
+                      <Pause className="h-8 w-8 text-white" />
+                    ) : (
+                      <Play className="h-8 w-8 text-white ml-1" />
+                    )}
+                  </Button>
+
+                  {/* Video Title Overlay */}
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <h3 className="text-white font-bold text-lg mb-2">EaseGiv Platform Walkthrough</h3>
+                    <div className="flex items-center space-x-4 text-white/80 text-sm">
+                      <span>Duration: 5:30</span>
+                      <span>•</span>
+                      <span>Step {currentStep} of 4</span>
+                    </div>
+                  </div>
+
+                  {/* Video Controls */}
+                  <div className="absolute bottom-4 right-4 flex items-center space-x-2">
+                    <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
+                      <Volume2 className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
+                      <Maximize className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
-                <p className="text-gray-600 text-sm">{feature.description}</p>
+
+                {/* Progress Bar */}
+                <div className="p-4">
+                  <Progress value={progress} className="w-full" />
+                  <div className="flex justify-between text-xs text-gray-500 mt-2">
+                    <span>0:00</span>
+                    <span>5:30</span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Platform Features */}
+            <Card className={`${darkMode ? "bg-gray-800 border-gray-700" : "bg-white"} shadow-xl`}>
+              <CardHeader>
+                <CardTitle className={`text-xl ${darkMode ? "text-white" : "text-gray-900"}`}>
+                  Platform Features Showcase
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {platformFeatures.map((feature, index) => (
+                  <div key={index} className="flex items-start space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h4 className={`font-semibold ${darkMode ? "text-white" : "text-gray-900"}`}>{feature.title}</h4>
+                      <p className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-600"}`}>{feature.description}</p>
+                    </div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
-          ))}
-        </div>
-
-        {/* Interactive Demo Steps */}
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 md:p-12">
-          <h3 className="text-2xl font-bold text-center mb-8">How It Works - Interactive Demo</h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[
-              { step: "1", title: "Browse Products", desc: "Explore our vast catalog", icon: "🔍" },
-              { step: "2", title: "Customize Design", desc: "Use our design tools", icon: "🎨" },
-              { step: "3", title: "Connect Suppliers", desc: "Get matched with verified suppliers", icon: "🤝" },
-              { step: "4", title: "Place Order", desc: "Secure ordering and tracking", icon: "📦" },
-            ].map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <span className="text-2xl">{item.icon}</span>
-                </div>
-                <div className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 text-sm font-bold">
-                  {item.step}
-                </div>
-                <h4 className="font-semibold mb-2">{item.title}</h4>
-                <p className="text-sm text-gray-600">{item.desc}</p>
-              </div>
-            ))}
           </div>
-        </div>
 
-        {/* Video Modal */}
-        {showVideo && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-hidden">
-              <div className="flex justify-between items-center p-6 border-b">
-                <h3 className="text-2xl font-bold">EaseGiv Platform Demo</h3>
-                <Button variant="ghost" onClick={() => setShowVideo(false)}>
-                  <X className="h-6 w-6" />
-                </Button>
-              </div>
-              <div className="p-6">
-                <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <Play className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 text-lg">Platform Demo Video</p>
-                    <p className="text-sm text-gray-500 mt-2">
-                      Interactive walkthrough showing how to use EaseGiv platform
-                    </p>
-                    <p className="text-xs text-gray-400 mt-4">Video content will be embedded here</p>
-                  </div>
-                </div>
-              </div>
+          {/* Process Steps */}
+          <div className="space-y-6">
+            <div>
+              <h3 className={`text-2xl font-bold mb-6 ${darkMode ? "text-white" : "text-gray-900"}`}>
+                Our Simple 4-Step Process
+              </h3>
+              <p className={`${darkMode ? "text-gray-300" : "text-gray-600"} mb-8`}>
+                From requirement to delivery, we've streamlined every step to ensure a smooth experience for your bulk
+                orders.
+              </p>
             </div>
+
+            {/* Interactive Steps */}
+            <div className="space-y-4">
+              {demoSteps.map((step, index) => (
+                <Card
+                  key={step.id}
+                  className={`${
+                    currentStep === step.id
+                      ? darkMode
+                        ? "bg-gray-700 border-blue-500 shadow-lg"
+                        : "bg-blue-50 border-blue-500 shadow-lg"
+                      : darkMode
+                        ? "bg-gray-800 border-gray-700 hover:bg-gray-700"
+                        : "bg-white hover:bg-gray-50"
+                  } cursor-pointer transition-all duration-300`}
+                  onClick={() => handleStepClick(step.id)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start space-x-4">
+                      {/* Step Number & Icon */}
+                      <div className="flex flex-col items-center space-y-2">
+                        <div
+                          className={`w-12 h-12 bg-gradient-to-r ${step.color} rounded-full flex items-center justify-center text-white font-bold`}
+                        >
+                          {step.id}
+                        </div>
+                        <div
+                          className={`w-8 h-8 bg-gradient-to-r ${step.color} rounded-lg flex items-center justify-center text-white`}
+                        >
+                          {step.icon}
+                        </div>
+                      </div>
+
+                      {/* Step Content */}
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className={`text-lg font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
+                            {step.title}
+                          </h4>
+                          <Badge variant="secondary" className="text-xs">
+                            {step.duration}
+                          </Badge>
+                        </div>
+                        <p className={`${darkMode ? "text-gray-300" : "text-gray-600"} mb-4`}>{step.description}</p>
+
+                        {/* Progress Indicator */}
+                        {currentStep === step.id && (
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-2 h-2 bg-gradient-to-r ${step.color} rounded-full animate-pulse`}></div>
+                            <span className={`text-sm font-medium ${darkMode ? "text-blue-400" : "text-blue-600"}`}>
+                              Currently viewing this step
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Arrow for active step */}
+                      {currentStep === step.id && (
+                        <ArrowRight className={`h-5 w-5 ${darkMode ? "text-blue-400" : "text-blue-600"}`} />
+                      )}
+                    </div>
+
+                    {/* Connection Line */}
+                    {index < demoSteps.length - 1 && (
+                      <div className={`ml-6 mt-4 w-0.5 h-8 ${darkMode ? "bg-gray-600" : "bg-gray-200"}`}></div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <Card
+              className={`${darkMode ? "bg-gradient-to-r from-blue-600 to-purple-600" : "bg-gradient-to-r from-blue-600 to-purple-600"} text-white shadow-xl`}
+            >
+              <CardContent className="p-6 text-center">
+                <h4 className="text-xl font-bold mb-4">Ready to Experience EaseGiv?</h4>
+                <p className="mb-6 opacity-90">
+                  Start your bulk customization journey today with our streamlined process
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 font-bold">
+                    Start Your Project
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-white text-white hover:bg-white hover:text-blue-600 font-bold bg-transparent"
+                  >
+                    Schedule Demo Call
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        )}
+        </div>
       </div>
     </section>
   )
