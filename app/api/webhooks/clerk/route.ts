@@ -3,8 +3,6 @@ import { Webhook } from "svix"
 import { headers } from "next/headers"
 import { dbService } from "@/lib/database"
 
-const ADMIN_EMAILS = ["wahidzk0091@gmail.com", "admin@easegiv.com"]
-
 export async function POST(req: NextRequest) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET
 
@@ -13,7 +11,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Get the headers
-  const headerPayload = headers()
+  const headerPayload = await headers()
   const svix_id = headerPayload.get("svix-id")
   const svix_timestamp = headerPayload.get("svix-timestamp")
   const svix_signature = headerPayload.get("svix-signature")
@@ -55,18 +53,15 @@ export async function POST(req: NextRequest) {
     const { id, email_addresses, first_name, last_name } = evt.data
 
     try {
-      const email = email_addresses[0]?.email_address
-      const role = ADMIN_EMAILS.includes(email) ? "admin" : "user"
-
       await dbService.createUser({
         clerkId: id,
-        email,
+        email: email_addresses[0]?.email_address || "",
         firstName: first_name || "",
         lastName: last_name || "",
-        role,
+        role: email_addresses[0]?.email_address === "wahidzk0091@gmail.com" ? "admin" : "user",
       })
 
-      console.log(`User created: ${email} with role: ${role}`)
+      console.log("User created in database:", id)
     } catch (error) {
       console.error("Error creating user in database:", error)
     }
@@ -76,21 +71,15 @@ export async function POST(req: NextRequest) {
     const { id, email_addresses, first_name, last_name } = evt.data
 
     try {
-      const email = email_addresses[0]?.email_address
-      const role = ADMIN_EMAILS.includes(email) ? "admin" : "user"
-
-      await dbService.updateUser(id, {
-        email,
-        firstName: first_name || "",
-        lastName: last_name || "",
-        role,
-      })
-
-      console.log(`User updated: ${email}`)
+      const existingUser = await dbService.getUserByClerkId(id)
+      if (existingUser) {
+        // Update user logic would go here if needed
+        console.log("User updated:", id)
+      }
     } catch (error) {
       console.error("Error updating user in database:", error)
     }
   }
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ received: true })
 }

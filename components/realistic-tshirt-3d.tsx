@@ -150,48 +150,65 @@ function RealisticTShirtModel({ productColor, logos, selectedLocations, logoConf
       {/* Enhanced collar with realistic depth */}
       <mesh position={[0, 1.02, 0.08]} castShadow>
         <ringGeometry args={[0.22, 0.32, 32]} />
-        <meshStandardMaterial color={productColor} side={THREE.DoubleSide} roughness={0.9} />
+        <meshStandardMaterial
+          color={productColor}
+          side={THREE.DoubleSide}
+          roughness={0.9}
+        />
       </mesh>
 
       {/* Inner collar for depth */}
       <mesh position={[0, 1.02, 0.06]} castShadow>
         <ringGeometry args={[0.2, 0.24, 32]} />
-        <meshStandardMaterial color={productColor} side={THREE.DoubleSide} roughness={0.9} />
+        <meshStandardMaterial
+          color={productColor}
+          side={THREE.DoubleSide}
+          roughness={0.9}
+        />
       </mesh>
 
       {/* Collar seam detail */}
       <mesh position={[0, 1.02, 0.09]} castShadow>
         <torusGeometry args={[0.27, 0.01, 8, 32]} />
-        <meshStandardMaterial color={new THREE.Color(productColor).multiplyScalar(0.8)} roughness={0.9} />
+        <meshStandardMaterial
+          color={new THREE.Color(productColor).multiplyScalar(0.8)}
+          roughness={0.9}
+        />
       </mesh>
 
       {/* Logos with proper positioning and rotation */}
-      {selectedLocations.map((locationId) => {
-        const location = logoLocations.find((loc) => loc.id === locationId)
-        const config = logoConfigs[locationId]
-        if (!location || !config) return null
+      {selectedLocations.map((locationId: string) => {
+        const location = logoLocations.find((loc) => loc.id === locationId);
+        const config = logoConfigs[locationId];
+        if (!location || !config) return null;
 
-        const selectedLogo = logos.find((logo: any) => logo.id === config.logoId)
-        const logoTexture = selectedLogo ? logoTextures[selectedLogo.id] : null
+        const selectedLogo = logos.find(
+          (logo: any) => logo.id === config.logoId
+        );
+        const logoTexture = selectedLogo ? logoTextures[selectedLogo.id] : null;
 
-        if (!logoTexture) return null
+        if (!logoTexture) return null;
 
-        const sizeMultiplier = (config.size / 100) * location.scale
+        const sizeMultiplier = (config.size / 100) * location.scale;
 
         // Convert rotation from degrees to radians for z-axis rotation
-        const zRotation = (config.rotation || 0) * (Math.PI / 180)
+        const zRotation = (config.rotation || 0) * (Math.PI / 180);
 
         // Combine base rotation with z-axis rotation
         const finalRotation: [number, number, number] = [
           location.rotation[0],
           location.rotation[1],
           location.rotation[2] + zRotation,
-        ]
+        ];
 
         return (
           <mesh
             key={locationId}
-            position={[location.position.x, location.position.y, location.position.z]}
+            position={[
+              location.position.x,
+              location.position.y,
+              location.position.z,
+            ]}
             rotation={finalRotation}
             scale={[sizeMultiplier, sizeMultiplier, 1]}
             renderOrder={1}
@@ -205,7 +222,7 @@ function RealisticTShirtModel({ productColor, logos, selectedLocations, logoConf
               depthWrite={false}
             />
           </mesh>
-        )
+        );
       })}
 
       {/* Status indicator with detailed info */}
@@ -219,7 +236,8 @@ function RealisticTShirtModel({ productColor, logos, selectedLocations, logoConf
             anchorY="middle"
             font="/fonts/Inter-Bold.ttf"
           >
-            {selectedLocations.length} Logo{selectedLocations.length > 1 ? "s" : ""} Applied
+            {selectedLocations.length} Logo
+            {selectedLocations.length > 1 ? "s" : ""} Applied
           </Text>
 
           {/* Show different logos indicator */}
@@ -232,14 +250,19 @@ function RealisticTShirtModel({ productColor, logos, selectedLocations, logoConf
               anchorY="middle"
               font="/fonts/Inter-Regular.ttf"
             >
-              {new Set(selectedLocations.map((id) => logoConfigs[id]?.logoId)).size} Different Logo
-              {new Set(selectedLocations.map((id) => logoConfigs[id]?.logoId)).size > 1 ? "s" : ""} Used
+              {(() => {
+                const uniqueLogoIds = new Set(
+                  selectedLocations.map((id: string) => logoConfigs[id]?.logoId)
+                );
+                const count = uniqueLogoIds.size;
+                return `${count} Different Logo${count > 1 ? "s" : ""} Used`;
+              })()}
             </Text>
           )}
         </group>
       )}
     </group>
-  )
+  );
 }
 
 function LoadingFallback() {

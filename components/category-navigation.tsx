@@ -1,76 +1,107 @@
 "use client"
-
-import { useState } from "react"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
+import { ChevronDown, Menu } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 const categories = [
-  { name: "View All", href: "/" },
-  { name: "Visiting Cards", href: "/visiting-cards" },
-  { name: "Stationery, Letterheads & Notebooks", href: "/stationery" },
-  { name: "Stamps and Ink", href: "/stamps" },
-  { name: "Signs, Posters & Marketing Materials", href: "/signs" },
-  { name: "Labels, Stickers & Packaging", href: "/labels" },
-  { name: "Clothing, Caps & Bags", href: "/clothing" },
-  { name: "Mugs, Albums & Gifts", href: "/gifts" },
-  { name: "Bulk Orders", href: "/bulk-orders" },
-  { name: "Custom Drinkware", href: "/drinkware" },
-  { name: "Custom Polo T-shirts", href: "/polo-tshirts" },
-  { name: "Umbrellas & Raincoats", href: "/umbrellas" },
+  {
+    name: "Visiting Cards",
+    href: "/category/visiting-cards",
+    subcategories: [
+      { name: "Standard Cards", href: "/category/visiting-cards/standard" },
+      { name: "Premium Cards", href: "/category/visiting-cards/premium" },
+      { name: "Luxury Cards", href: "/category/visiting-cards/luxury" },
+    ],
+  },
+  {
+    name: "Stationery & Letterheads",
+    href: "/category/stationery",
+    subcategories: [
+      { name: "Letterheads", href: "/category/stationery/letterheads" },
+      { name: "Notebooks", href: "/category/stationery/notebooks" },
+      { name: "Envelopes", href: "/category/stationery/envelopes" },
+    ],
+  },
+  {
+    name: "Stamps and Ink",
+    href: "/category/stamps",
+    subcategories: [
+      { name: "Custom Stamps", href: "/category/stamps/custom" },
+      { name: "Ink Pads", href: "/category/stamps/ink-pads" },
+      { name: "Self-Inking Stamps", href: "/category/stamps/self-inking" },
+    ],
+  },
+  {
+    name: "Signs & Marketing",
+    href: "/category/marketing",
+    subcategories: [
+      { name: "Banners", href: "/category/marketing/banners" },
+      { name: "Posters", href: "/category/marketing/posters" },
+      { name: "Flyers", href: "/category/marketing/flyers" },
+    ],
+  },
+  {
+    name: "Labels & Packaging",
+    href: "/category/labels",
+    subcategories: [
+      { name: "Stickers", href: "/category/labels/stickers" },
+      { name: "Labels", href: "/category/labels/custom-labels" },
+      { name: "Packaging", href: "/category/labels/packaging" },
+    ],
+  },
+  {
+    name: "Clothing & Accessories",
+    href: "/category/clothing",
+    subcategories: [
+      { name: "T-Shirts", href: "/category/clothing/tshirts" },
+      { name: "Caps & Hats", href: "/category/clothing/caps" },
+      { name: "Bags", href: "/category/clothing/bags" },
+    ],
+  },
+  {
+    name: "Gifts & Albums",
+    href: "/category/gifts",
+    subcategories: [
+      { name: "Mugs", href: "/category/gifts/mugs" },
+      { name: "Photo Albums", href: "/category/gifts/albums" },
+      { name: "Custom Gifts", href: "/category/gifts/custom" },
+    ],
+  },
 ]
 
-export default function CategoryNavigation() {
-  const [isOpen, setIsOpen] = useState(false)
-
+export function CategoryNavigation() {
   return (
-    <div className="border-t border-gray-200 bg-white">
-      <div className="container mx-auto px-4">
-        {/* Mobile menu button */}
-        <div className="flex md:hidden py-3 justify-between items-center">
-          <button onClick={() => setIsOpen(!isOpen)} className="text-gray-500 hover:text-gray-900 focus:outline-none">
-            <span className="sr-only">Open menu</span>
-            {isOpen ? (
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
-          <span className="font-medium">Categories</span>
-        </div>
-
-        {/* Mobile menu */}
-        <div className={cn("md:hidden", isOpen ? "block" : "hidden")}>
-          <div className="space-y-1 pb-3 pt-2">
-            {categories.map((category) => (
-              <Link
-                key={category.name}
-                href={category.href}
-                className="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50"
-                onClick={() => setIsOpen(false)}
-              >
-                {category.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Desktop menu */}
-        <nav className="hidden md:flex space-x-8 overflow-x-auto py-3 text-sm font-medium">
-          {categories.map((category) => (
-            <Link
-              key={category.name}
-              href={category.href}
-              className="whitespace-nowrap text-gray-700 hover:text-gray-900"
-            >
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="flex items-center space-x-2 bg-transparent">
+          <Menu className="h-4 w-4" />
+          <span className="hidden sm:inline">Categories</span>
+          <ChevronDown className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-64" align="start">
+        {categories.map((category) => (
+          <div key={category.name} className="p-2">
+            <Link href={category.href} className="block px-2 py-1 font-medium text-gray-900 hover:bg-gray-100 rounded">
               {category.name}
             </Link>
-          ))}
-        </nav>
-      </div>
-    </div>
+            <div className="ml-4 mt-1 space-y-1">
+              {category.subcategories.map((sub) => (
+                <Link
+                  key={sub.name}
+                  href={sub.href}
+                  className="block px-2 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded"
+                >
+                  {sub.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
+
+export default CategoryNavigation

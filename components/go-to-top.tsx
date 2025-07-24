@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { ArrowUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export default function GoToTop() {
+export function GoToTop() {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
@@ -42,3 +42,5 @@ export default function GoToTop() {
     </Button>
   )
 }
+
+export default GoToTop
